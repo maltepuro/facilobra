@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Obra Fácil Europa</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0d2a4e"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Obra Fácil"/>
+<link rel="apple-touch-icon" href="icon.png"/>
+<link rel="icon" type="image/png" href="icon.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d2a4e;--navy2:#133a6a;--blue:#1a5299;
+  --gold:#f5a800;--gold2:#ffc940;
+  --bg:#f0f4fa;--card:#fff;--text:#0d2a4e;--muted:#6b7a90;--border:#dce6f5;
+  --r:16px;--shadow:0 4px 24px rgba(13,42,78,.10);--shadow-lg:0 12px 48px rgba(13,42,78,.16);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;flex-direction:column;animation:fadeIn .35s ease}
+.page.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:9999;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:opacity .5s,visibility .5s}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+#splash img{width:130px;border-radius:50%;animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 40px rgba(245,168,0,.3)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.splash-title{color:#fff;font-size:24px;font-weight:800}.splash-title span{color:var(--gold)}
+.splash-bar{width:160px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden}
+.splash-bar::after{content:'';display:block;height:100%;width:40%;background:var(--gold);border-radius:4px;animation:load 1.5s ease-in-out infinite}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+
+/* ── HEADER ── */
+.app-header{background:var(--card);border-bottom:1px solid var(--border);box-shadow:0 2px 16px rgba(13,42,78,.07);position:sticky;top:0;z-index:100}
+.hdr{max-width:1100px;margin:0 auto;padding:0 18px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.logo-btn{display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;padding:0}
+.logo-btn img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px rgba(13,42,78,.2);transition:transform .2s}
+.logo-btn:active img{transform:scale(.92)}
+.logo-btn span{font-size:16px;font-weight:800;color:var(--navy)}
+.logo-btn span em{color:var(--gold);font-style:normal}
+nav.desk{display:flex;align-items:center;gap:18px}
+nav.desk button{background:none;border:none;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;padding:6px 4px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;font-family:inherit}
+nav.desk button:hover{color:var(--navy);border-bottom-color:var(--gold)}
+nav.desk button.active-nav{color:var(--navy);border-bottom-color:var(--gold)}
+.lsel{border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-size:13px;font-weight:600;color:var(--text);background:var(--bg);cursor:pointer;outline:none;font-family:inherit}
+.lsel:focus{border-color:var(--blue)}
+.mbtn{display:none;background:none;border:none;cursor:pointer;color:var(--text);font-size:22px;padding:4px}
+#mmenu{display:none;flex-direction:column;background:var(--card);border-top:1px solid var(--border)}
+#mmenu.open{display:flex}
+#mmenu button{padding:14px 20px;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text);font-weight:600;font-size:15px;text-align:left;cursor:pointer;font-family:inherit;transition:background .15s}
+#mmenu button:hover{background:#f5f8ff}
+#mmenu .lsel{margin:12px 20px 16px;width:calc(100% - 40px)}
+
+/* ── BUTTONS ── */
+.btn-gold{background:var(--gold);color:var(--navy);border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .2s,transform .15s,box-shadow .2s;box-shadow:0 6px 24px rgba(245,168,0,.3);font-family:inherit;text-decoration:none}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 10px 32px rgba(245,168,0,.4)}
+.btn-gold:active{transform:scale(.95);box-shadow:0 2px 8px rgba(245,168,0,.3)}
+.btn-navy{background:var(--navy);color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .2s,transform .15s;font-family:inherit}
+.btn-navy:hover{background:var(--navy2);transform:translateY(-2px)}
+.btn-navy:active{transform:scale(.95)}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.3);border-radius:12px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .2s,transform .15s;font-family:inherit}
+.btn-ghost:hover{background:rgba(255,255,255,.2);transform:translateY(-2px)}
+.btn-ghost:active{transform:scale(.95)}
+.btn-outline{background:transparent;color:var(--navy);border:2px solid var(--border);border-radius:12px;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s;font-family:inherit}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue);background:#f0f6ff}
+.btn-outline:active{transform:scale(.95)}
+
+/* ── PAGE 1: HOME ── */
+#p-home{background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 55%,var(--blue) 100%)}
+.home-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;position:relative;overflow:hidden}
+.home-inner::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+.home-logo{width:110px;height:110px;border-radius:50%;object-fit:cover;margin-bottom:28px;box-shadow:0 0 0 4px rgba(245,168,0,.4),0 0 0 8px rgba(245,168,0,.15);animation:logoPulse 3s ease-in-out infinite;position:relative;z-index:1}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 0 4px rgba(245,168,0,.4),0 0 0 8px rgba(245,168,0,.15)}50%{box-shadow:0 0 0 6px rgba(245,168,0,.5),0 0 0 14px rgba(245,168,0,.1)}}
+.home-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:600;color:#fff;margin-bottom:22px;position:relative;z-index:1}
+.home-inner h1{font-size:clamp(26px,6vw,48px);font-weight:800;color:#fff;line-height:1.15;margin-bottom:16px;position:relative;z-index:1}
+.home-inner h1 span{color:var(--gold)}
+.home-inner p{font-size:16px;color:rgba(255,255,255,.78);max-width:480px;line-height:1.7;margin-bottom:44px;position:relative;z-index:1}
+.home-btns{display:flex;flex-direction:column;gap:14px;width:100%;max-width:340px;position:relative;z-index:1}
+.btn-home{border:none;border-radius:16px;padding:20px 24px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:16px;text-align:left;font-family:inherit;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.btn-home::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);opacity:0;transition:opacity .2s}
+.btn-home:hover::after{opacity:1}
+.btn-home:active{transform:scale(.96)!important}
+.btn-home-client{background:var(--gold);color:var(--navy);box-shadow:0 8px 32px rgba(245,168,0,.4)}
+.btn-home-client:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(245,168,0,.5)}
+.btn-home-pro{background:rgba(255,255,255,.12);color:#fff;border:2px solid rgba(255,255,255,.25)}
+.btn-home-pro:hover{transform:translateY(-3px);background:rgba(255,255,255,.2)}
+.bhi{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:transform .2s}
+.btn-home:hover .bhi{transform:scale(1.15) rotate(-5deg)}
+.btn-home-client .bhi{background:rgba(13,42,78,.15)}
+.btn-home-pro .bhi{background:rgba(255,255,255,.15)}
+.bht strong{display:block;font-size:16px;margin-bottom:2px}
+.bht small{font-size:12px;opacity:.75;font-weight:500}
+.home-stats{display:flex;justify-content:center;gap:32px;margin-top:52px;flex-wrap:wrap;position:relative;z-index:1}
+.hstat{text-align:center}
+.hstat-n{font-size:28px;font-weight:800;color:var(--gold)}
+.hstat-l{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;font-weight:500}
+.home-langs{margin-top:32px;position:relative;z-index:1}
+.home-langs select{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;outline:none;font-family:inherit}
+.home-langs select option{background:var(--navy);color:#fff}
+
+/* ── PAGE 2: CLIENT ── */
+#p-client{background:var(--bg);flex-direction:column}
+.page-content{flex:1;max-width:1100px;margin:0 auto;padding:32px 20px;width:100%}
+.page-hero{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:20px;padding:32px 28px;color:#fff;margin-bottom:28px;position:relative;overflow:hidden}
+.page-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05)}
+.page-hero h2{font-size:clamp(20px,4vw,28px);font-weight:800;margin-bottom:8px}
+.page-hero h2 span{color:var(--gold)}
+.page-hero p{font-size:14px;color:rgba(255,255,255,.75);line-height:1.6;max-width:420px}
+.search-box{background:var(--card);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:24px}
+.search-box h3{font-size:16px;font-weight:700;margin-bottom:14px;color:var(--navy)}
+.srow{display:flex;gap:10px;flex-wrap:wrap}
+.sinput{flex:1;min-width:160px;border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;font-size:14px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s}
+.sinput:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,82,153,.1);background:#fff}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{background:var(--bg);border:1.5px solid var(--border);border-radius:100px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;display:flex;align-items:center;gap:6px;font-family:inherit}
+.chip:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.chip:active{transform:scale(.94)}
+.chip i{transition:transform .2s}
+.chip:hover i{transform:scale(1.3) rotate(-10deg)}
+.sec-title{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:16px}
+.pro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:32px}
+.pro-card{background:var(--card);border-radius:var(--r);padding:20px;border:1.5px solid var(--border);cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;position:relative;overflow:hidden}
+.pro-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--blue),var(--navy));opacity:0;transition:opacity .2s}
+.pro-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-5px);border-color:var(--blue)}
+.pro-card:hover::after{opacity:.03}
+.pro-card:active{transform:scale(.96)}
+.pro-card-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.pro-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:800;flex-shrink:0;transition:transform .2s}
+.pro-card:hover .pro-av{transform:scale(1.08) rotate(-3deg)}
+.pro-card-info h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.pro-role{color:var(--blue);font-size:12px;font-weight:600}
+.pro-detail{font-size:12px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.pro-detail i{color:var(--blue);width:13px;transition:transform .2s}
+.pro-card:hover .pro-detail i{transform:scale(1.2)}
+.pro-stars{display:flex;gap:3px;margin-top:10px}
+.pro-stars i{color:var(--gold);font-size:12px;transition:transform .15s}
+.pro-card:hover .pro-stars i{animation:starPop .3s ease forwards}
+.pro-card:hover .pro-stars i:nth-child(1){animation-delay:.0s}
+.pro-card:hover .pro-stars i:nth-child(2){animation-delay:.05s}
+.pro-card:hover .pro-stars i:nth-child(3){animation-delay:.1s}
+.pro-card:hover .pro-stars i:nth-child(4){animation-delay:.15s}
+.pro-card:hover .pro-stars i:nth-child(5){animation-delay:.2s}
+@keyframes starPop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.pro-stars i.e{color:var(--border)}
+.pro-badge{display:inline-block;background:#e8f5ff;color:var(--blue);font-size:10px;font-weight:700;border-radius:100px;padding:3px 10px;margin-top:10px}
+.pro-view-btn{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--navy);margin-top:12px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.pro-view-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy);transform:translateY(-1px)}
+.pro-view-btn:active{transform:scale(.96)}
+.pro-view-btn i{transition:transform .2s}
+.pro-view-btn:hover i{transform:translateX(4px)}
+
+/* ── PAGE 3: PRO REGISTER ── */
+#p-pro{background:var(--bg);flex-direction:column}
+.reg-hero{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:20px;padding:32px 28px;color:#fff;margin-bottom:28px;position:relative;overflow:hidden}
+.reg-hero h2{font-size:clamp(20px,4vw,28px);font-weight:800;margin-bottom:8px}
+.reg-hero h2 span{color:var(--gold)}
+.reg-hero p{font-size:14px;color:rgba(255,255,255,.75);line-height:1.6}
+.reg-card{background:var(--card);border-radius:var(--r);padding:28px;box-shadow:var(--shadow);margin-bottom:20px}
+.reg-card h3{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.reg-card>p{color:var(--muted);font-size:13px;margin-bottom:22px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:540px){.fgrid{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select,.fg textarea{border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,82,153,.1);background:#fff}
+.fg textarea{resize:vertical;min-height:85px}
+.photo-upload{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+.photo-upload:hover{border-color:var(--blue);background:#f0f6ff}
+.photo-upload:active{transform:scale(.98)}
+.photo-upload i{font-size:32px;color:var(--blue);margin-bottom:10px;display:block;transition:transform .2s}
+.photo-upload:hover i{transform:scale(1.2) translateY(-3px)}
+.photo-upload p{font-size:13px;font-weight:600;color:var(--muted)}
+.photo-upload small{font-size:12px;color:var(--muted);opacity:.7}
+.photo-preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.photo-thumb{width:72px;height:72px;border-radius:10px;object-fit:cover;border:2px solid var(--border);transition:transform .2s}
+.photo-thumb:hover{transform:scale(1.08)}
+.psel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.popt{border:2px solid var(--border);border-radius:12px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.popt::after{content:'';position:absolute;inset:0;background:rgba(245,168,0,.05);opacity:0;transition:opacity .2s}
+.popt:hover{border-color:var(--blue);background:#f0f6ff;transform:translateY(-2px)}
+.popt:hover::after{opacity:1}
+.popt:active{transform:scale(.96)}
+.popt.sel{border-color:var(--gold);background:#fffbe6;box-shadow:0 0 0 1px var(--gold)}
+.pon{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.pop{font-size:18px;font-weight:800;color:var(--blue)}
+.popt.sel .pop{color:var(--gold)}
+.poper{font-size:11px;color:var(--muted)}
+.rnotice{background:#e8f5ff;border:1.5px solid #b3d9ff;border-radius:12px;padding:13px 15px;font-size:13px;color:#0a4a8a;display:flex;align-items:flex-start;gap:10px;margin-top:16px;line-height:1.6}
+.rnotice i{color:var(--blue);margin-top:2px;flex-shrink:0}
+.btn-reg{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;margin-top:16px;transition:opacity .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-reg:hover{opacity:.9;transform:translateY(-1px)}
+.btn-reg:active{transform:scale(.97)}
+.fsuccess{display:none;background:#e6f9ee;border:1.5px solid #6fcf97;border-radius:12px;padding:14px;font-size:14px;color:#1a7a45;font-weight:600;margin-top:14px;text-align:center}
+.fsuccess.show{display:block;animation:fadeIn .3s ease}
+
+/* ── PAGE 4: PRO PROFILE ── */
+#p-profile{background:var(--bg);flex-direction:column}
+.profile-hero{position:relative;background:linear-gradient(135deg,var(--navy),var(--blue));padding:32px 24px 80px;color:#fff;text-align:center}
+.profile-avatar{width:100px;height:100px;border-radius:50%;border:4px solid var(--gold);object-fit:cover;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;box-shadow:0 8px 32px rgba(0,0,0,.3);transition:transform .2s}
+.profile-avatar:hover{transform:scale(1.05)}
+.profile-name{font-size:24px;font-weight:800;margin-bottom:4px}
+.profile-role{color:var(--gold);font-size:15px;font-weight:600;margin-bottom:12px}
+.profile-loc{font-size:14px;color:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:16px}
+.profile-stars{display:flex;gap:5px;justify-content:center;margin-bottom:20px}
+.profile-stars i{color:var(--gold);font-size:18px}
+.profile-stats{display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
+.pstat{text-align:center}
+.pstat-n{font-size:22px;font-weight:800;color:var(--gold)}
+.pstat-l{font-size:12px;color:rgba(255,255,255,.6)}
+.profile-body{max-width:800px;margin:-48px auto 0;padding:0 20px 40px;position:relative;z-index:1;width:100%}
+.profile-card{background:var(--card);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:16px}
+.profile-card h3{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.profile-card h3 i{color:var(--blue)}
+.profile-about{font-size:14px;color:var(--muted);line-height:1.7}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gallery-item{aspect-ratio:1;border-radius:12px;overflow:hidden;cursor:pointer;position:relative}
+.gallery-item-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;transition:transform .2s}
+.gallery-item:hover .gallery-item-bg{transform:scale(1.08)}
+.gallery-item::after{content:'🔍';position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:24px;opacity:0;transition:opacity .2s}
+.gallery-item:hover::after{opacity:1}
+.contact-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn-contact{flex:1;min-width:120px;border:none;border-radius:12px;padding:13px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.btn-contact:active{transform:scale(.95)}
+.btn-wp{background:#25D366;color:#fff}
+.btn-wp:hover{background:#1da851;transform:translateY(-2px)}
+.btn-call{background:var(--navy);color:#fff}
+.btn-call:hover{background:var(--navy2);transform:translateY(-2px)}
+.btn-mail{background:var(--bg);color:var(--navy);border:1.5px solid var(--border)}
+.btn-mail:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px)}
+.btn-contact i{transition:transform .2s}
+.btn-contact:hover i{transform:scale(1.2)}
+.review-item{border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:16px}
+.review-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.review-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.review-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700;flex-shrink:0}
+.review-name{font-size:14px;font-weight:700;color:var(--navy)}
+.review-date{font-size:12px;color:var(--muted)}
+.review-stars{display:flex;gap:3px}
+.review-stars i{color:var(--gold);font-size:12px}
+.review-text{font-size:13px;color:var(--muted);line-height:1.6;margin-top:6px}
+.back-btn{display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.8);font-size:14px;font-weight:600;font-family:inherit;margin-bottom:16px;padding:0;transition:color .2s}
+.back-btn:hover{color:#fff}
+.back-btn i{transition:transform .2s}
+.back-btn:hover i{transform:translateX(-3px)}
+
+/* ── MODALS ── */
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:20px;max-width:460px;width:100%;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.3);position:relative;animation:mIn .25s ease;max-height:90vh;overflow-y:auto}
+@keyframes mIn{from{transform:scale(.93) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.mcls{position:absolute;top:14px;right:14px;background:var(--bg);border:none;cursor:pointer;color:var(--muted);font-size:15px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.mcls:hover{background:var(--border);color:var(--text);transform:rotate(90deg)}
+.modal h3{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.mbadge{background:#eef3ff;color:var(--blue);font-size:12px;font-weight:700;padding:4px 12px;border-radius:100px;display:inline-block;margin-bottom:16px}
+.mblock{background:var(--bg);border-radius:12px;padding:14px;margin-bottom:11px}
+.mblock h4{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.pixk{font-family:monospace;font-size:12px;word-break:break-all;color:var(--blue);background:#dbeafe;border-radius:8px;padding:10px 12px;margin-top:6px;display:block}
+.bcopy{background:none;border:none;cursor:pointer;color:var(--blue);font-size:13px;font-weight:600;margin-top:7px;padding:0;display:flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s}
+.bcopy:hover{color:var(--navy)}
+.bcopy:active{transform:scale(.94)}
+.mnote{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.5}
+
+/* FEEDBACK */
+.srate{display:flex;justify-content:center;gap:10px;margin:16px 0}
+.srate i{font-size:34px;color:var(--border);cursor:pointer;transition:color .15s,transform .2s}
+.srate i:hover,.srate i.act{color:var(--gold)}
+.srate i.act{animation:starBounce .3s ease}
+@keyframes starBounce{0%{transform:scale(1)}40%{transform:scale(1.4)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+.sharebtns{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.bshare{border:none;border-radius:11px;padding:11px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:all .2s}
+.bshare:hover{transform:translateY(-2px)}
+.bshare:active{transform:scale(.95)}
+.bwa{background:#25D366;color:#fff}
+.blink{background:var(--bg);color:var(--navy);border:1.5px solid var(--border)}
+
+/* INSTALL */
+#ibanner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--navy);color:#fff;padding:13px 18px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,.3);border-top:2px solid var(--gold);animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#ibanner.show{display:flex}
+.iinfo{display:flex;align-items:center;gap:11px}
+.iinfo img{width:36px;height:36px;border-radius:50%}
+.iinfo strong{display:block;font-size:14px;font-weight:700}
+.iinfo small{font-size:11px;color:rgba(255,255,255,.6)}
+.iacts{display:flex;gap:8px;flex-shrink:0}
+.binst{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.binst:hover{background:var(--gold2)}
+.binst:active{transform:scale(.95)}
+.bdism{background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;padding:9px 11px;font-size:13px;cursor:pointer;transition:background .2s}
+.bdism:hover{background:rgba(255,255,255,.2)}
+
+/* FOOTER */
+footer{background:var(--navy);color:rgba(255,255,255,.6);padding:28px 24px;text-align:center}
+footer img{height:32px;border-radius:50%;margin-bottom:10px;opacity:.8}
+footer p{font-size:13px;margin-bottom:10px}
+.flinks{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.flinks button{color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;font-size:12px;font-family:inherit;transition:color .2s}
+.flinks button:hover{color:#fff}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:#fff;border-radius:100px;padding:11px 22px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);z-index:500;transition:transform .3s,opacity .3s;opacity:0;display:flex;align-items:center;gap:8px;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* FORMS SHARED */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:540px){.form-row{grid-template-columns:1fr}}
+
+@media(max-width:768px){nav.desk{display:none}.mbtn{display:block}.home-stats{gap:20px}.gallery{grid-template-columns:repeat(2,1fr)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <img src="icon.png" alt="Logo"/>
+  <div class="splash-title">Obra Fácil <span>Europa</span></div>
+  <div class="splash-bar"></div>
+</div>
+
+<!-- PAGE 1: HOME -->
+<div class="page active" id="p-home">
+  <div class="home-inner">
+    <img src="icon.png" alt="Obra Fácil Europa" class="home-logo"/>
+    <div class="home-tag"><i class="fas fa-globe-europe"></i><span data-i18n="hero.tag">Plataforma Multilíngue — Europa</span></div>
+    <h1 data-i18n="hero.title">Os melhores profissionais da <span>construção</span> perto de si</h1>
+    <p data-i18n="hero.sub">Eletricistas, encanadores, azulejistas, pintores e muito mais. Para clientes, a busca é sempre gratuita.</p>
+    <div class="home-btns">
+      <button class="btn-home btn-home-client" id="btn-cliente">
+        <div class="bhi"><i class="fas fa-search"></i></div>
+        <div class="bht"><strong data-i18n="welcome.client">Sou Cliente</strong><small data-i18n="welcome.clientSub">Encontrar profissionais — grátis</small></div>
+      </button>
+      <button class="btn-home btn-home-pro" id="btn-pro">
+        <div class="bhi"><i class="fas fa-hard-hat"></i></div>
+        <div class="bht"><strong data-i18n="welcome.pro">Sou Profissional</strong><small data-i18n="welcome.proSub">Cadastrar e anunciar serviços</small></div>
+      </button>
+    </div>
+    <div class="home-stats">
+      <div class="hstat"><div class="hstat-n">2.400+</div><div class="hstat-l" data-i18n="stats.pros">Profissionais</div></div>
+      <div class="hstat"><div class="hstat-n">18</div><div class="hstat-l" data-i18n="stats.countries">Países</div></div>
+      <div class="hstat"><div class="hstat-n">14k+</div><div class="hstat-l" data-i18n="stats.done">Serviços realizados</div></div>
+      <div class="hstat"><div class="hstat-n">4.8★</div><div class="hstat-l" data-i18n="stats.rating">Avaliação média</div></div>
+    </div>
+    <div class="home-langs">
+      <select id="lhome" aria-label="Idioma">
+        <option value="pt">🇧🇷 Português</option><option value="en">🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option><option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option><option value="it">🇮🇹 Italiano</option>
+        <option value="pl">🇵🇱 Polski</option><option value="nl">🇳🇱 Nederlands</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: CLIENT -->
+<div class="page" id="p-client">
+  <div class="app-header">
+    <div class="hdr">
+      <button class="logo-btn" onclick="goTo('p-home')">
+        <img src="icon.png" alt=""/><span>Obra Fácil <em>Europa</em></span>
+      </button>
+      <nav class="desk">
+        <button onclick="goTo('p-client')" class="active-nav" data-i18n="nav.search">Buscar</button>
+        <button onclick="goTo('p-pro')" data-i18n="nav.register">Cadastro Pro</button>
+        <select class="lsel" id="lheader" aria-label="Idioma" onchange="applyLang(this.value)">
+          <option value="pt">🇧🇷 PT</option><option value="en">🇬🇧 EN</option>
+          <option value="es">🇪🇸 ES</option><option value="fr">🇫🇷 FR</option>
+          <option value="de">🇩🇪 DE</option><option value="it">🇮🇹 IT</option>
+          <option value="pl">🇵🇱 PL</option><option value="nl">🇳🇱 NL</option>
+        </select>
+      </nav>
+      <button class="mbtn" id="mbtn"><i class="fas fa-bars"></i></button>
+    </div>
+    <nav id="mmenu">
+      <button onclick="goTo('p-client');closeMM()" data-i18n="nav.search">Buscar</button>
+      <button onclick="goTo('p-pro');closeMM()" data-i18n="nav.register">Cadastro Pro</button>
+      <button onclick="goTo('p-home');closeMM()" data-i18n="nav.home">Início</button>
+      <select class="lsel" onchange="applyLang(this.value)" aria-label="Idioma">
+        <option value="pt">🇧🇷 Português</option><option value="en">🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option><option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option><option value="it">🇮🇹 Italiano</option>
+        <option value="pl">🇵🇱 Polski</option><option value="nl">🇳🇱 Nederlands</option>
+      </select>
+    </nav>
+  </div>
+  <div class="page-content">
+    <div class="page-hero">
+      <h2 data-i18n="search.title">Encontre o profissional <span>ideal</span></h2>
+      <p data-i18n="search.sub">Pesquise por especialidade ou localização e entre em contacto direto. 100% gratuito para clientes.</p>
+    </div>
+    <div class="search-box">
+      <h3 data-i18n="search.boxTitle">O que precisa?</h3>
+      <div class="srow">
+        <input class="sinput" id="swhat" type="text" data-ph="search.what" placeholder="Ex: Eletricista..."/>
+        <input class="sinput" id="swhere" type="text" data-ph="search.where" placeholder="Ex: Lisboa..."/>
+        <button class="btn-navy" id="bsrch" style="padding:12px 20px;font-size:14px"><i class="fas fa-search"></i><span data-i18n="search.btn">Buscar</span></button>
+      </div>
+      <div class="chips" id="chips">
+        <button class="chip" data-sv="Eletricista"><i class="fas fa-bolt"></i><span data-i18n="chip.electrician">Eletricista</span></button>
+        <button class="chip" data-sv="Encanador"><i class="fas fa-faucet"></i><span data-i18n="chip.plumber">Encanador</span></button>
+        <button class="chip" data-sv="Azulejista"><i class="fas fa-th-large"></i><span data-i18n="chip.tiler">Azulejista</span></button>
+        <button class="chip" data-sv="Pintor"><i class="fas fa-paint-roller"></i><span data-i18n="chip.painter">Pintor</span></button>
+        <button class="chip" data-sv="Carpinteiro"><i class="fas fa-hammer"></i><span data-i18n="chip.carpenter">Carpinteiro</span></button>
+        <button class="chip" data-sv="Construção"><i class="fas fa-hard-hat"></i><span data-i18n="chip.construction">Construção</span></button>
+      </div>
+    </div>
+    <div class="sec-title" data-i18n="pros.title">Profissionais em Destaque</div>
+    <div class="pro-grid" id="pro-grid">
+      <!-- Cards rendered by JS -->
+    </div>
+  </div>
+  <footer>
+    <img src="icon.png" alt=""/><p data-i18n="footer.copy">© 2025 Obra Fácil Europa.</p>
+    <div class="flinks"><button onclick="goTo('p-home')" data-i18n="nav.home">Início</button><button onclick="openModal('paymodal')" data-i18n="nav.plans">Planos</button></div>
+  </footer>
+</div>
+
+<!-- PAGE 3: PRO REGISTER -->
+<div class="page" id="p-pro">
+  <div class="app-header">
+    <div class="hdr">
+      <button class="logo-btn" onclick="goTo('p-home')">
+        <img src="icon.png" alt=""/><span>Obra Fácil <em>Europa</em></span>
+      </button>
+      <nav class="desk">
+        <button onclick="goTo('p-client')" data-i18n="nav.search">Buscar</button>
+        <button onclick="goTo('p-pro')" class="active-nav" data-i18n="nav.register">Cadastro Pro</button>
+        <select class="lsel" aria-label="Idioma" onchange="applyLang(this.value)">
+          <option value="pt">🇧🇷 PT</option><option value="en">🇬🇧 EN</option>
+          <option value="es">🇪🇸 ES</option><option value="fr">🇫🇷 FR</option>
+          <option value="de">🇩🇪 DE</option><option value="it">🇮🇹 IT</option>
+          <option value="pl">🇵🇱 PL</option><option value="nl">🇳🇱 NL</option>
+        </select>
+      </nav>
+      <button class="mbtn" onclick="toggleMM()"><i class="fas fa-bars"></i></button>
+    </div>
+    <nav id="mmenu">
+      <button onclick="goTo('p-client');closeMM()" data-i18n="nav.search">Buscar</button>
+      <button onclick="goTo('p-home');closeMM()" data-i18n="nav.home">Início</button>
+      <select class="lsel" onchange="applyLang(this.value)" aria-label="Idioma">
+        <option value="pt">🇧🇷 Português</option><option value="en">🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option><option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option><option value="it">🇮🇹 Italiano</option>
+        <option value="pl">🇵🇱 Polski</option><option value="nl">🇳🇱 Nederlands</option>
+      </select>
+    </nav>
+  </div>
+  <div class="page-content">
+    <div class="reg-hero">
+      <h2 data-i18n="reg.title">Cadastre-se como <span>Profissional</span></h2>
+      <p data-i18n="reg.sub">Preencha os dados, escolha o plano e comece a receber clientes em toda a Europa.</p>
+    </div>
+    <!-- Plans -->
+    <div class="reg-card">
+      <h3 data-i18n="plans.title">Escolha o seu Plano</h3>
+      <p data-i18n="plans.sub">Após o pagamento, anúncio ativo por 1 mês em toda a Europa.</p>
+      <div class="psel">
+        <div class="popt" data-val="basic"><div class="pon" data-i18n="plan.basic.name">Básico</div><div class="pop">€29,90</div><div class="poper" data-i18n="plan.month">/mês</div></div>
+        <div class="popt sel" data-val="professional"><div class="pon" data-i18n="plan.pro.name">Profissional</div><div class="pop">€59,90</div><div class="poper" data-i18n="plan.month">/mês</div></div>
+        <div class="popt" data-val="premium"><div class="pon" data-i18n="plan.premium.name">Premium</div><div class="pop">€99,90</div><div class="poper" data-i18n="plan.month">/mês</div></div>
+      </div>
+    </div>
+    <!-- Personal Data -->
+    <div class="reg-card">
+      <h3 data-i18n="reg.cardTitle">Dados Pessoais</h3>
+      <p data-i18n="reg.cardSub">Informações do seu perfil profissional.</p>
+      <div class="fgrid">
+        <div class="fg"><label data-i18n="form.name">Nome completo</label><input type="text" id="rname" placeholder="O seu nome"/></div>
+        <div class="fg"><label data-i18n="form.email">E-mail</label><input type="email" id="remail" placeholder="email@exemplo.com"/></div>
+        <div class="fg"><label data-i18n="form.phone">Telefone / WhatsApp</label><input type="tel" id="rphone" placeholder="+351 900 000 000"/></div>
+        <div class="fg"><label data-i18n="form.country">País</label>
+          <select id="rcountry">
+            <option value="">-- Selecionar --</option>
+            <option>Portugal</option><option>Espanha</option><option>França</option>
+            <option>Alemanha</option><option>Itália</option><option>Holanda</option>
+            <option>Bélgica</option><option>Polónia</option><option>Reino Unido</option>
+            <option>Suíça</option><option>Áustria</option><option>Brasil</option>
+          </select>
+        </div>
+        <div class="fg"><label data-i18n="form.city">Cidade</label><input type="text" id="rcity" placeholder="Lisboa, Madrid..."/></div>
+        <div class="fg"><label data-i18n="form.specialty">Especialidade</label>
+          <select id="rspec">
+            <option value="">-- Selecionar --</option>
+            <option>Construção Civil</option><option>Eletricista</option>
+            <option>Azulejista</option><option>Encanador</option>
+            <option>Pintor</option><option>Carpinteiro</option>
+          </select>
+        </div>
+        <div class="fg full"><label data-i18n="form.desc">Descrição dos serviços</label><textarea id="rdesc" placeholder="Descreva a sua experiência..."></textarea></div>
+      </div>
+    </div>
+    <!-- Photos -->
+    <div class="reg-card">
+      <h3 data-i18n="form.photos">Fotos do Perfil e Trabalhos</h3>
+      <p data-i18n="form.photosSub">Adicione fotos para aumentar a sua credibilidade.</p>
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:8px" data-i18n="form.profilePhoto">Foto de Perfil</label>
+        <div class="photo-upload" id="profile-upload" onclick="document.getElementById('profile-input').click()">
+          <i class="fas fa-user-circle"></i>
+          <p data-i18n="form.uploadProfile">Toque para adicionar foto de perfil</p>
+          <small data-i18n="form.uploadHint">JPG, PNG até 5MB</small>
+        </div>
+        <input type="file" id="profile-input" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)"/>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:8px" data-i18n="form.workPhotos">Fotos dos Trabalhos</label>
+        <div class="photo-upload" onclick="document.getElementById('work-input').click()">
+          <i class="fas fa-images"></i>
+          <p data-i18n="form.uploadWork">Toque para adicionar fotos dos trabalhos</p>
+          <small data-i18n="form.uploadHint2">Até 10 fotos · JPG, PNG</small>
+        </div>
+        <input type="file" id="work-input" accept="image/*" multiple style="display:none" onchange="handleWorkPhotos(this)"/>
+        <div class="photo-preview" id="work-preview"></div>
+      </div>
+    </div>
+    <div class="rnotice"><i class="fas fa-info-circle"></i><span data-i18n="reg.notice">Após completar o cadastro e efetuar o pagamento, o seu anúncio ficará ativo por <strong>1 mês</strong> em toda a Europa. Depois basta renovar.</span></div>
+    <button class="btn-reg" id="breg"><i class="fas fa-user-check"></i><span data-i18n="reg.btn">Completar Cadastro</span></button>
+    <div class="fsuccess" id="rsuccess" data-i18n="reg.success">✓ Cadastro enviado! Entraremos em contacto com as instruções de pagamento.</div>
+  </div>
+  <footer>
+    <img src="icon.png" alt=""/><p data-i18n="footer.copy">© 2025 Obra Fácil Europa.</p>
+    <div class="flinks"><button onclick="goTo('p-home')" data-i18n="nav.home">Início</button><button onclick="goTo('p-client')" data-i18n="nav.search">Buscar</button></div>
+  </footer>
+</div>
+
+<!-- PAGE 4: PRO PROFILE -->
+<div class="page" id="p-profile">
+  <div class="app-header">
+    <div class="hdr">
+      <button class="logo-btn" onclick="goTo('p-home')">
+        <img src="icon.png" alt=""/><span>Obra Fácil <em>Europa</em></span>
+      </button>
+      <nav class="desk">
+        <button onclick="goTo('p-client')" data-i18n="nav.search">Buscar</button>
+        <button onclick="goTo('p-pro')" data-i18n="nav.register">Cadastro Pro</button>
+        <select class="lsel" aria-label="Idioma" onchange="applyLang(this.value)">
+          <option value="pt">🇧🇷 PT</option><option value="en">🇬🇧 EN</option>
+          <option value="es">🇪🇸 ES</option><option value="fr">🇫🇷 FR</option>
+          <option value="de">🇩🇪 DE</option><option value="it">🇮🇹 IT</option>
+          <option value="pl">🇵🇱 PL</option><option value="nl">🇳🇱 NL</option>
+        </select>
+      </nav>
+      <button class="mbtn" onclick="toggleMM()"><i class="fas fa-bars"></i></button>
+    </div>
+  </div>
+  <div id="profile-content"><!-- rendered by JS --></div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="overlay" id="paymodal">
+  <div class="modal">
+    <button class="mcls" onclick="closeModal('paymodal')"><i class="fas fa-times"></i></button>
+    <h3 data-i18n="pay.title">Instruções de Pagamento</h3>
+    <div class="mbadge" id="paybadge">Plano Profissional — €59,90/mês</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px" data-i18n="pay.desc">Após o pagamento, o seu anúncio fica ativo por 1 mês em toda a Europa.</p>
+    <div class="mblock"><h4 data-i18n="pay.pix">Pix (Brasil)</h4><span class="pixk" id="pixval">123e4567-e89b-12d3-a456-426614174000</span><button class="bcopy" id="bcpix"><i class="far fa-copy"></i><span data-i18n="pay.copy">Copiar chave</span></button></div>
+    <div class="mblock"><h4 data-i18n="pay.bank">Transferência Bancária</h4><p style="font-size:13px;line-height:1.8"><strong>IBAN:</strong> DE89 3704 0044 0532 0130 00<br><strong>BIC/SWIFT:</strong> EXAMPDEFF<br><strong>Titular:</strong> Obra Fácil Europa</p></div>
+    <p class="mnote" data-i18n="pay.note">Dúvidas? suporte@obrafacil.eu</p>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="overlay" id="fbmodal">
+  <div class="modal" style="text-align:center">
+    <button class="mcls" onclick="closeModal('fbmodal')"><i class="fas fa-times"></i></button>
+    <div style="font-size:36px;margin-bottom:8px">⭐</div>
+    <h3 data-i18n="fb.title">Gostou da Obra Fácil?</h3>
+    <p style="font-size:14px;color:var(--muted);margin-top:6px" data-i18n="fb.sub">A sua opinião ajuda-nos a melhorar.</p>
+    <div class="srate" id="srate">
+      <i class="far fa-star" data-v="1"></i><i class="far fa-star" data-v="2"></i>
+      <i class="far fa-star" data-v="3"></i><i class="far fa-star" data-v="4"></i>
+      <i class="far fa-star" data-v="5"></i>
+    </div>
+    <div style="text-align:left;margin-bottom:14px">
+      <label style="font-size:13px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px" data-i18n="fb.comment">Comentário (opcional)</label>
+      <textarea id="fbcomment" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;width:100%;min-height:70px;resize:none;outline:none;background:var(--bg)" placeholder="O que achou?"></textarea>
+    </div>
+    <button class="btn-gold" style="width:100%;justify-content:center;margin-bottom:14px" id="bsendfb"><i class="fas fa-paper-plane"></i><span data-i18n="fb.send">Enviar Avaliação</span></button>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px" data-i18n="fb.share">Partilhe com amigos!</p>
+    <div class="sharebtns">
+      <button class="bshare bwa" id="bwa"><i class="fab fa-whatsapp"></i><span data-i18n="fb.whatsapp">WhatsApp</span></button>
+      <button class="bshare blink" id="bclink"><i class="fas fa-link"></i><span data-i18n="fb.copyLink">Copiar link</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALL -->
+<div id="ibanner">
+  <div class="iinfo"><img src="icon.png" alt=""/><div><strong>Obra Fácil Europa</strong><small data-i18n="install.sub">Instalar como app</small></div></div>
+  <div class="iacts">
+    <button class="binst" id="binst" data-i18n="install.btn">Instalar</button>
+    <button class="bdism" id="bdism">✕</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="tmsg"></span></div>
+
+<script>
+// ═══════════════ DATA ═══════════════
+const PROS = [
+  {id:1,initials:'JS',name:'João Silva',role:'svc.electrician',roleDefault:'Eletricista',city:'Lisboa',country:'Portugal',phone:'+351 912 345 678',email:'joao.silva@email.com',rating:4.5,stars:[1,1,1,1,.5],color:'linear-gradient(135deg,#1a5299,#0d2a4e)',badge:true,about:'Eletricista certificado com 15 anos de experiência. Especializado em instalações residenciais e comerciais.',jobs:248,reviews:47,gallery:['⚡','🔌','💡','🏠','🔧','⚙️'],feedback:[{name:'António M.',av:'AM',avColor:'#1a5299',stars:5,date:'Jan 2025',text:'Excelente profissional! Trabalho impecável e pontual.'},{ name:'Sofia R.',av:'SR',avColor:'#7c3aed',stars:5,date:'Dez 2024',text:'Muito profissional, preço justo. Recomendo!'}]},
+  {id:2,initials:'MO',name:'Maria Oliveira',role:'svc.tiler',roleDefault:'Azulejista',city:'Madrid',country:'Espanha',phone:'+34 612 345 678',email:'maria.oliveira@email.com',rating:5,stars:[1,1,1,1,1],color:'linear-gradient(135deg,#7c3aed,#c084fc)',badge:true,about:'Azulejista com 10 anos de experiência em colocação e decoração de azulejos e pavimentos.',jobs:183,reviews:38,gallery:['🏺','🧱','🏠','✨','🛁','🔲'],feedback:[{name:'Carlos F.',av:'CF',avColor:'#059669',stars:5,date:'Fev 2025',text:'Trabalho perfeito! Ficou melhor do que esperava.'},{ name:'Ana P.',av:'AP',avColor:'#dc2626',stars:5,date:'Jan 2025',text:'Profissional incrível, muito detalhista.'}]},
+  {id:3,initials:'CP',name:'Carlos Pereira',role:'svc.plumber',roleDefault:'Encanador',city:'Berlim',country:'Alemanha',phone:'+49 151 23456789',email:'carlos.pereira@email.com',rating:3.5,stars:[1,1,1,.5,0],color:'linear-gradient(135deg,#059669,#34d399)',badge:true,about:'Encanador especializado em instalações hidráulicas residenciais e comerciais com 8 anos de experiência.',jobs:142,reviews:29,gallery:['🚿','🪠','💧','🏗️','🔩','🛠️'],feedback:[{name:'Klaus W.',av:'KW',avColor:'#1a5299',stars:4,date:'Mar 2025',text:'Bom trabalho, rápido e eficiente.'},{ name:'Maria S.',av:'MS',avColor:'#b45309',stars:3,date:'Fev 2025',text:'Trabalho ok, mas demorou um pouco mais do previsto.'}]},
+  {id:4,initials:'AF',name:'Ana Ferreira',role:'svc.painter',roleDefault:'Pintora',city:'Paris',country:'França',phone:'+33 6 12 34 56 78',email:'ana.ferreira@email.com',rating:5,stars:[1,1,1,1,1],color:'linear-gradient(135deg,#dc2626,#fb923c)',badge:true,about:'Pintora profissional especializada em pintura decorativa, acabamentos e revestimentos de alta qualidade.',jobs:201,reviews:52,gallery:['🎨','🖌️','🏠','✨','🌈','🖼️'],feedback:[{name:'Pierre D.',av:'PD',avColor:'#1a5299',stars:5,date:'Mar 2025',text:'Trabalho extraordinário! Cores perfeitas.'},{ name:'Isabelle B.',av:'IB',avColor:'#7c3aed',stars:5,date:'Fev 2025',text:'Ana é fantástica, muito talentosa!'}]},
+  {id:5,initials:'RM',name:'Rui Monteiro',role:'svc.carpenter',roleDefault:'Carpinteiro',city:'Porto',country:'Portugal',phone:'+351 934 567 890',email:'rui.monteiro@email.com',rating:4.5,stars:[1,1,1,1,.5],color:'linear-gradient(135deg,#0369a1,#38bdf8)',badge:true,about:'Carpinteiro artesanal com mais de 20 anos de experiência. Especializado em mobiliário sob medida.',jobs:176,reviews:41,gallery:['🪵','🔨','🪑','🚪','🛏️','🏡'],feedback:[{name:'Teresa A.',av:'TA',avColor:'#059669',stars:5,date:'Jan 2025',text:'Móveis lindos! Superou as minhas expectativas.'},{ name:'Nuno C.',av:'NC',avColor:'#dc2626',stars:4,date:'Dez 2024',text:'Ótimo trabalho, muito criativo.'}]},
+  {id:6,initials:'LG',name:'Lucas García',role:'svc.construction',roleDefault:'Construção Civil',city:'Barcelona',country:'Espanha',phone:'+34 622 987 654',email:'lucas.garcia@email.com',rating:4,stars:[1,1,1,1,0],color:'linear-gradient(135deg,#b45309,#fbbf24)',badge:false,about:'Construtor civil com 12 anos de experiência em obras, reformas e construção de novas estruturas.',jobs:134,reviews:31,gallery:['🏗️','🧱','⛏️','🏠','🔧','🏢'],feedback:[{name:'Elena M.',av:'EM',avColor:'#1a5299',stars:4,date:'Fev 2025',text:'Boa obra, no prazo e dentro do orçamento.'},{ name:'Roberto P.',av:'RP',avColor:'#7c3aed',stars:4,date:'Jan 2025',text:'Profissional sério e competente.'}]}
+];
+
+// ═══════════════ TRANSLATIONS ═══════════════
+const T={pt:{"hero.tag":"Plataforma Multilíngue — Europa","hero.title":"Os melhores profissionais da <span>construção</span> perto de si","hero.sub":"Eletricistas, encanadores, azulejistas, pintores e muito mais. Para clientes, a busca é sempre gratuita.","welcome.client":"Sou Cliente","welcome.clientSub":"Encontrar profissionais — grátis","welcome.pro":"Sou Profissional","welcome.proSub":"Cadastrar e anunciar serviços","stats.pros":"Profissionais","stats.countries":"Países","stats.done":"Serviços realizados","stats.rating":"Avaliação média","nav.search":"Buscar","nav.register":"Cadastro Pro","nav.home":"Início","nav.plans":"Planos","search.title":"Encontre o profissional <span>ideal</span>","search.sub":"Pesquise por especialidade ou localização. 100% gratuito para clientes.","search.boxTitle":"O que precisa?","search.what":"Ex: Eletricista, Pintor...","search.where":"Ex: Lisboa, Madrid...","search.btn":"Buscar","chip.electrician":"Eletricista","chip.plumber":"Encanador","chip.tiler":"Azulejista","chip.painter":"Pintor","chip.carpenter":"Carpinteiro","chip.construction":"Construção","pros.title":"Profissionais em Destaque","pro.verified":"✓ Verificado","pro.viewProfile":"Ver Perfil","pro.jobs":"Trabalhos","pro.reviews":"Avaliações","pro.about":"Sobre o Profissional","pro.gallery":"Galeria de Trabalhos","pro.contact":"Contactar","pro.feedback":"Avaliações dos Clientes","pro.whatsapp":"WhatsApp","pro.call":"Ligar","pro.email":"E-mail","reg.title":"Cadastre-se como <span>Profissional</span>","reg.sub":"Preencha os dados, escolha o plano e comece a receber clientes.","reg.cardTitle":"Dados Pessoais","reg.cardSub":"Informações do seu perfil profissional.","reg.notice":"Após completar o cadastro e efetuar o pagamento, o seu anúncio ficará ativo por <strong>1 mês</strong> em toda a Europa. Depois basta renovar.","reg.btn":"Completar Cadastro","reg.success":"✓ Cadastro enviado! Entraremos em contacto com as instruções de pagamento.","plans.title":"Escolha o seu Plano","plans.sub":"Após o pagamento, anúncio ativo por 1 mês em toda a Europa.","plan.basic.name":"Básico","plan.pro.name":"Profissional","plan.premium.name":"Premium","plan.month":"/mês","form.name":"Nome completo","form.email":"E-mail","form.phone":"Telefone / WhatsApp","form.country":"País","form.city":"Cidade","form.specialty":"Especialidade","form.desc":"Descrição dos serviços","form.photos":"Fotos do Perfil e Trabalhos","form.photosSub":"Adicione fotos para aumentar a sua credibilidade.","form.profilePhoto":"Foto de Perfil","form.uploadProfile":"Toque para adicionar foto de perfil","form.workPhotos":"Fotos dos Trabalhos","form.uploadWork":"Toque para adicionar fotos dos trabalhos","form.uploadHint":"JPG, PNG até 5MB","form.uploadHint2":"Até 10 fotos · JPG, PNG","svc.electrician":"Eletricista","svc.tiler":"Azulejista","svc.plumber":"Encanador","svc.painter":"Pintor","svc.carpenter":"Carpinteiro","svc.construction":"Construção Civil","pay.title":"Instruções de Pagamento","pay.desc":"Após o pagamento, o seu anúncio fica ativo por 1 mês em toda a Europa.","pay.pix":"Pix (Brasil)","pay.bank":"Transferência Bancária","pay.copy":"Copiar chave","pay.note":"Dúvidas? suporte@obrafacil.eu","fb.title":"Gostou da Obra Fácil?","fb.sub":"A sua opinião ajuda-nos a melhorar.","fb.comment":"Comentário (opcional)","fb.send":"Enviar Avaliação","fb.share":"Partilhe com amigos!","fb.whatsapp":"WhatsApp","fb.copyLink":"Copiar link","install.sub":"Instalar como app","install.btn":"Instalar","footer.copy":"© 2025 Obra Fácil Europa. Todos os direitos reservados.","toast.copied":"Copiado!","toast.sent":"Enviado!","toast.thanks":"Obrigado!","toast.linkCopied":"Link copiado!","back":"← Voltar"},en:{"hero.tag":"Multilingual Platform — Europe","hero.title":"The best <span>construction</span> professionals near you","hero.sub":"Electricians, plumbers, tilers, painters and more. Search is always free for clients.","welcome.client":"I'm a Client","welcome.clientSub":"Find professionals — free","welcome.pro":"I'm a Professional","welcome.proSub":"Register and advertise services","stats.pros":"Professionals","stats.countries":"Countries","stats.done":"Services done","stats.rating":"Average rating","nav.search":"Search","nav.register":"Pro Register","nav.home":"Home","nav.plans":"Plans","search.title":"Find the <span>right</span> professional","search.sub":"Search by specialty or location. 100% free for clients.","search.boxTitle":"What do you need?","search.what":"E.g. Electrician...","search.where":"E.g. Lisbon...","search.btn":"Search","chip.electrician":"Electrician","chip.plumber":"Plumber","chip.tiler":"Tiler","chip.painter":"Painter","chip.carpenter":"Carpenter","chip.construction":"Construction","pros.title":"Featured Professionals","pro.verified":"✓ Verified","pro.viewProfile":"View Profile","pro.jobs":"Jobs","pro.reviews":"Reviews","pro.about":"About","pro.gallery":"Work Gallery","pro.contact":"Contact","pro.feedback":"Client Reviews","pro.whatsapp":"WhatsApp","pro.call":"Call","pro.email":"Email","reg.title":"Register as a <span>Professional</span>","reg.sub":"Fill in your details, choose a plan and start receiving clients.","reg.cardTitle":"Personal Details","reg.cardSub":"Your professional profile information.","reg.notice":"After registration and payment, your ad will be active for <strong>1 month</strong> across Europe. Just renew to continue.","reg.btn":"Complete Registration","reg.success":"✓ Registration sent! We'll contact you with payment instructions.","plans.title":"Choose your Plan","plans.sub":"After payment, ad active for 1 month across Europe.","plan.basic.name":"Basic","plan.pro.name":"Professional","plan.premium.name":"Premium","plan.month":"/month","form.name":"Full name","form.email":"Email","form.phone":"Phone / WhatsApp","form.country":"Country","form.city":"City","form.specialty":"Specialty","form.desc":"Service description","form.photos":"Profile & Work Photos","form.photosSub":"Add photos to increase credibility.","form.profilePhoto":"Profile Photo","form.uploadProfile":"Tap to add profile photo","form.workPhotos":"Work Photos","form.uploadWork":"Tap to add work photos","form.uploadHint":"JPG, PNG up to 5MB","form.uploadHint2":"Up to 10 photos · JPG, PNG","svc.electrician":"Electrician","svc.tiler":"Tiler","svc.plumber":"Plumber","svc.painter":"Painter","svc.carpenter":"Carpenter","svc.construction":"Construction","pay.title":"Payment Instructions","pay.desc":"After payment, your ad is active for 1 month across Europe.","pay.pix":"Pix (Brazil)","pay.bank":"Bank Transfer","pay.copy":"Copy key","pay.note":"Questions? suporte@obrafacil.eu","fb.title":"Did you like Obra Fácil?","fb.sub":"Your opinion helps us improve.","fb.comment":"Comment (optional)","fb.send":"Submit Review","fb.share":"Share with friends!","fb.whatsapp":"WhatsApp","fb.copyLink":"Copy link","install.sub":"Install as app","install.btn":"Install","footer.copy":"© 2025 Obra Fácil Europa. All rights reserved.","toast.copied":"Copied!","toast.sent":"Sent!","toast.thanks":"Thank you!","toast.linkCopied":"Link copied!","back":"← Back"},es:{"hero.tag":"Plataforma Multilingüe — Europa","hero.title":"Los mejores profesionales de la <span>construcción</span> cerca de ti","hero.sub":"Electricistas, fontaneros, alicatadores, pintores y más. Búsqueda siempre gratuita.","welcome.client":"Soy Cliente","welcome.clientSub":"Encontrar profesionales — gratis","welcome.pro":"Soy Profesional","welcome.proSub":"Registrarme y anunciar servicios","stats.pros":"Profesionales","stats.countries":"Países","stats.done":"Servicios realizados","stats.rating":"Valoración media","nav.search":"Buscar","nav.register":"Registro Pro","nav.home":"Inicio","nav.plans":"Planes","search.title":"Encuentra el profesional <span>ideal</span>","search.sub":"Busca por especialidad o ubicación. 100% gratuito.","search.boxTitle":"¿Qué necesitas?","search.what":"Ej: Electricista...","search.where":"Ej: Madrid...","search.btn":"Buscar","chip.electrician":"Electricista","chip.plumber":"Fontanero","chip.tiler":"Alicatador","chip.painter":"Pintor","chip.carpenter":"Carpintero","chip.construction":"Construcción","pros.title":"Profesionales Destacados","pro.verified":"✓ Verificado","pro.viewProfile":"Ver Perfil","pro.jobs":"Trabajos","pro.reviews":"Valoraciones","pro.about":"Sobre el Profesional","pro.gallery":"Galería de Trabajos","pro.contact":"Contactar","pro.feedback":"Valoraciones de Clientes","pro.whatsapp":"WhatsApp","pro.call":"Llamar","pro.email":"Email","reg.title":"Regístrate como <span>Profesional</span>","reg.sub":"Rellena los datos, elige el plan y empieza a recibir clientes.","reg.cardTitle":"Datos Personales","reg.cardSub":"Información de tu perfil profesional.","reg.notice":"Tras el registro y pago, tu anuncio estará activo <strong>1 mes</strong> en toda Europa.","reg.btn":"Completar Registro","reg.success":"✓ ¡Registro enviado! Te contactaremos con las instrucciones de pago.","plans.title":"Elige tu Plan","plans.sub":"Tras el pago, anuncio activo 1 mes en toda Europa.","plan.basic.name":"Básico","plan.pro.name":"Profesional","plan.premium.name":"Premium","plan.month":"/mes","form.name":"Nombre completo","form.email":"Email","form.phone":"Teléfono / WhatsApp","form.country":"País","form.city":"Ciudad","form.specialty":"Especialidad","form.desc":"Descripción de servicios","form.photos":"Fotos de Perfil y Trabajos","form.photosSub":"Añade fotos para aumentar tu credibilidad.","form.profilePhoto":"Foto de Perfil","form.uploadProfile":"Toca para añadir foto de perfil","form.workPhotos":"Fotos de Trabajos","form.uploadWork":"Toca para añadir fotos de trabajos","form.uploadHint":"JPG, PNG hasta 5MB","form.uploadHint2":"Hasta 10 fotos · JPG, PNG","svc.electrician":"Electricista","svc.tiler":"Alicatador","svc.plumber":"Fontanero","svc.painter":"Pintor","svc.carpenter":"Carpintero","svc.construction":"Construcción","pay.title":"Instrucciones de Pago","pay.desc":"Tras el pago, tu anuncio activo 1 mes en Europa.","pay.pix":"Pix (Brasil)","pay.bank":"Transferencia Bancaria","pay.copy":"Copiar clave","pay.note":"¿Dudas? suporte@obrafacil.eu","fb.title":"¿Te gustó Obra Fácil?","fb.sub":"Tu opinión nos ayuda a mejorar.","fb.comment":"Comentario (opcional)","fb.send":"Enviar Valoración","fb.share":"¡Comparte con amigos!","fb.whatsapp":"WhatsApp","fb.copyLink":"Copiar enlace","install.sub":"Instalar como app","install.btn":"Instalar","footer.copy":"© 2025 Obra Fácil Europa. Todos los derechos reservados.","toast.copied":"¡Copiado!","toast.sent":"¡Enviado!","toast.thanks":"¡Gracias!","toast.linkCopied":"¡Enlace copiado!","back":"← Volver"},fr:{"hero.tag":"Plateforme Multilingue — Europe","hero.title":"Les meilleurs professionnels du <span>bâtiment</span> près de vous","hero.sub":"Électriciens, plombiers, carreleurs, peintres et plus. Recherche toujours gratuite.","welcome.client":"Je suis Client","welcome.clientSub":"Trouver des professionnels — gratuit","welcome.pro":"Je suis Professionnel","welcome.proSub":"S'inscrire et annoncer ses services","stats.pros":"Professionnels","stats.countries":"Pays","stats.done":"Services réalisés","stats.rating":"Note moyenne","nav.search":"Chercher","nav.register":"Inscription Pro","nav.home":"Accueil","nav.plans":"Forfaits","search.title":"Trouvez le professionnel <span>idéal</span>","search.sub":"Recherchez par spécialité ou lieu. 100% gratuit.","search.boxTitle":"De quoi avez-vous besoin?","search.what":"Ex: Électricien...","search.where":"Ex: Paris...","search.btn":"Rechercher","chip.electrician":"Électricien","chip.plumber":"Plombier","chip.tiler":"Carreleur","chip.painter":"Peintre","chip.carpenter":"Charpentier","chip.construction":"Construction","pros.title":"Professionnels en Vedette","pro.verified":"✓ Vérifié","pro.viewProfile":"Voir Profil","pro.jobs":"Travaux","pro.reviews":"Avis","pro.about":"À propos","pro.gallery":"Galerie","pro.contact":"Contacter","pro.feedback":"Avis Clients","pro.whatsapp":"WhatsApp","pro.call":"Appeler","pro.email":"Email","reg.title":"Inscrivez-vous comme <span>Professionnel</span>","reg.sub":"Remplissez vos données, choisissez un forfait et commencez.","reg.cardTitle":"Données Personnelles","reg.cardSub":"Informations de votre profil professionnel.","reg.notice":"Après inscription et paiement, votre annonce sera active <strong>1 mois</strong> dans toute l'Europe.","reg.btn":"Finaliser l'inscription","reg.success":"✓ Inscription envoyée! Nous vous contacterons.","plans.title":"Choisissez votre Forfait","plans.sub":"Après paiement, annonce active 1 mois en Europe.","plan.basic.name":"Basique","plan.pro.name":"Professionnel","plan.premium.name":"Premium","plan.month":"/mois","form.name":"Nom complet","form.email":"Email","form.phone":"Téléphone / WhatsApp","form.country":"Pays","form.city":"Ville","form.specialty":"Spécialité","form.desc":"Description des services","form.photos":"Photos Profil et Travaux","form.photosSub":"Ajoutez des photos pour plus de crédibilité.","form.profilePhoto":"Photo de Profil","form.uploadProfile":"Touchez pour ajouter votre photo","form.workPhotos":"Photos de Travaux","form.uploadWork":"Touchez pour ajouter des photos","form.uploadHint":"JPG, PNG jusqu'à 5MB","form.uploadHint2":"Jusqu'à 10 photos","svc.electrician":"Électricien","svc.tiler":"Carreleur","svc.plumber":"Plombier","svc.painter":"Peintre","svc.carpenter":"Charpentier","svc.construction":"Construction","pay.title":"Instructions de Paiement","pay.desc":"Après paiement, annonce active 1 mois en Europe.","pay.pix":"Pix (Brésil)","pay.bank":"Virement Bancaire","pay.copy":"Copier la clé","pay.note":"Questions? suporte@obrafacil.eu","fb.title":"Vous avez aimé Obra Fácil?","fb.sub":"Votre avis nous aide.","fb.comment":"Commentaire (optionnel)","fb.send":"Envoyer l'avis","fb.share":"Partagez avec vos amis!","fb.whatsapp":"WhatsApp","fb.copyLink":"Copier le lien","install.sub":"Installer comme app","install.btn":"Installer","footer.copy":"© 2025 Obra Fácil Europa. Tous droits réservés.","toast.copied":"Copié!","toast.sent":"Envoyé!","toast.thanks":"Merci!","toast.linkCopied":"Lien copié!","back":"← Retour"},de:{"hero.tag":"Mehrsprachige Plattform — Europa","hero.title":"Die besten <span>Bau</span>fachleute in Ihrer Nähe","hero.sub":"Elektriker, Klempner, Fliesenleger, Maler und mehr. Suche immer kostenlos.","welcome.client":"Ich bin Kunde","welcome.clientSub":"Fachleute finden — kostenlos","welcome.pro":"Ich bin Fachmann","welcome.proSub":"Registrieren und Dienste anbieten","stats.pros":"Fachleute","stats.countries":"Länder","stats.done":"Aufträge","stats.rating":"Bewertung","nav.search":"Suchen","nav.register":"Pro-Anmeldung","nav.home":"Start","nav.plans":"Pläne","search.title":"Den <span>richtigen</span> Fachmann finden","search.sub":"Nach Fachgebiet oder Ort suchen. Kostenlos.","search.boxTitle":"Was brauchen Sie?","search.what":"z.B. Elektriker...","search.where":"z.B. Berlin...","search.btn":"Suchen","chip.electrician":"Elektriker","chip.plumber":"Klempner","chip.tiler":"Fliesenleger","chip.painter":"Maler","chip.carpenter":"Zimmermann","chip.construction":"Bau","pros.title":"Hervorgehobene Fachleute","pro.verified":"✓ Verifiziert","pro.viewProfile":"Profil ansehen","pro.jobs":"Aufträge","pro.reviews":"Bewertungen","pro.about":"Über den Fachmann","pro.gallery":"Galerie","pro.contact":"Kontaktieren","pro.feedback":"Kundenbewertungen","pro.whatsapp":"WhatsApp","pro.call":"Anrufen","pro.email":"E-Mail","reg.title":"Als <span>Fachmann</span> registrieren","reg.sub":"Daten eingeben, Plan wählen und Kunden empfangen.","reg.cardTitle":"Persönliche Daten","reg.cardSub":"Informationen für Ihr Profil.","reg.notice":"Nach Registrierung und Zahlung ist Ihre Anzeige <strong>1 Monat</strong> aktiv.","reg.btn":"Registrierung abschließen","reg.success":"✓ Registrierung gesendet!","plans.title":"Plan wählen","plans.sub":"Nach Zahlung Anzeige 1 Monat aktiv.","plan.basic.name":"Basis","plan.pro.name":"Profi","plan.premium.name":"Premium","plan.month":"/Monat","form.name":"Vollständiger Name","form.email":"E-Mail","form.phone":"Telefon / WhatsApp","form.country":"Land","form.city":"Stadt","form.specialty":"Fachgebiet","form.desc":"Dienstleistungsbeschreibung","form.photos":"Profil- und Arbeitsfotos","form.photosSub":"Fügen Sie Fotos hinzu.","form.profilePhoto":"Profilfoto","form.uploadProfile":"Tippen Sie, um Profilfoto hinzuzufügen","form.workPhotos":"Arbeitsfotos","form.uploadWork":"Tippen Sie, um Fotos hinzuzufügen","form.uploadHint":"JPG, PNG bis 5MB","form.uploadHint2":"Bis zu 10 Fotos","svc.electrician":"Elektriker","svc.tiler":"Fliesenleger","svc.plumber":"Klempner","svc.painter":"Maler","svc.carpenter":"Zimmermann","svc.construction":"Bau","pay.title":"Zahlungsanweisungen","pay.desc":"Nach Zahlung Anzeige 1 Monat aktiv.","pay.pix":"Pix (Brasilien)","pay.bank":"Banküberweisung","pay.copy":"Schlüssel kopieren","pay.note":"Fragen? suporte@obrafacil.eu","fb.title":"Hat Ihnen Obra Fácil gefallen?","fb.sub":"Ihre Meinung hilft uns.","fb.comment":"Kommentar (optional)","fb.send":"Bewertung senden","fb.share":"Mit Freunden teilen!","fb.whatsapp":"WhatsApp","fb.copyLink":"Link kopieren","install.sub":"Als App installieren","install.btn":"Installieren","footer.copy":"© 2025 Obra Fácil Europa. Alle Rechte vorbehalten.","toast.copied":"Kopiert!","toast.sent":"Gesendet!","toast.thanks":"Danke!","toast.linkCopied":"Link kopiert!","back":"← Zurück"}};
+['it','pl','nl'].forEach(l=>T[l]=T.en);
+
+let lang='pt',rating=0;
+const t=k=>(T[lang]||T.pt)[k]||(T.pt[k])||k;
+
+// ═══════════════ TOAST ═══════════════
+function toast(msg,d=2500){
+  const el=document.getElementById('toast');
+  document.getElementById('tmsg').textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),d);
+}
+
+// ═══════════════ LANG ═══════════════
+function applyLang(l){
+  lang=l;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t(el.dataset.i18n);if(v)el.innerHTML=v;
+  });
+  document.querySelectorAll('[data-ph]').forEach(el=>{
+    const v=t(el.dataset.ph);if(v)el.placeholder=v;
+  });
+  document.querySelectorAll('select[id^="l"]').forEach(el=>{ if(el.value!==undefined) el.value=l; });
+  document.documentElement.lang=l;
+  renderProCards();
+}
+
+// ═══════════════ PAGES ═══════════════
+function goTo(pageId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ═══════════════ MOBILE MENU ═══════════════
+function toggleMM(){
+  const mm=document.getElementById('mmenu');
+  mm.classList.toggle('open');
+}
+function closeMM(){
+  document.getElementById('mmenu')?.classList.remove('open');
+}
+
+// ═══════════════ SPLASH ═══════════════
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    const s=document.getElementById('splash');
+    s.classList.add('hide');
+    setTimeout(()=>s.style.display='none',600);
+  },1800);
+});
+
+// ═══════════════ HOME BUTTONS ═══════════════
+document.getElementById('btn-cliente').addEventListener('click',()=>goTo('p-client'));
+document.getElementById('btn-pro').addEventListener('click',()=>goTo('p-pro'));
+document.getElementById('lhome').addEventListener('change',e=>applyLang(e.target.value));
+
+// ═══════════════ RENDER PRO CARDS ═══════════════
+function starsHTML(stars, size=''){
+  return stars.map(v=>{
+    if(v===1) return `<i class="fas fa-star${size}"></i>`;
+    if(v===.5) return `<i class="fas fa-star-half-alt${size}"></i>`;
+    return `<i class="fas fa-star e${size}"></i>`;
+  }).join('');
+}
+
+function renderProCards(){
+  const grid=document.getElementById('pro-grid');
+  if(!grid)return;
+  grid.innerHTML=PROS.map(p=>`
+    <div class="pro-card" onclick="showProfile(${p.id})">
+      <div class="pro-card-top">
+        <div class="pro-av" style="background:${p.color}">${p.initials}</div>
+        <div class="pro-card-info">
+          <h3>${p.name}</h3>
+          <div class="pro-role">${t(p.role)||p.roleDefault}</div>
+        </div>
+      </div>
+      <p class="pro-detail"><i class="fas fa-map-marker-alt"></i>${p.city}, ${p.country}</p>
+      <p class="pro-detail"><i class="fas fa-phone"></i>${p.phone}</p>
+      <div class="pro-stars">${starsHTML(p.stars)}</div>
+      ${p.badge?`<span class="pro-badge">${t('pro.verified')}</span>`:''}
+      <button class="pro-view-btn" onclick="event.stopPropagation();showProfile(${p.id})">
+        <span>${t('pro.viewProfile')}</span><i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+// ═══════════════ SHOW PROFILE ═══════════════
+function showProfile(id){
+  const p=PROS.find(x=>x.id===id);
+  if(!p)return;
+  const role=t(p.role)||p.roleDefault;
+  document.getElementById('profile-content').innerHTML=`
+    <div class="profile-hero">
+      <button class="back-btn" onclick="goTo('p-client')"><i class="fas fa-arrow-left"></i>${t('back')}</button>
+      <div class="profile-avatar" style="background:${p.color}">${p.initials}</div>
+      <div class="profile-name">${p.name}</div>
+      <div class="profile-role">${role}</div>
+      <div class="profile-loc"><i class="fas fa-map-marker-alt"></i>${p.city}, ${p.country}</div>
+      <div class="profile-stars">${starsHTML(p.stars)}</div>
+      <div class="profile-stats">
+        <div class="pstat"><div class="pstat-n">${p.jobs}</div><div class="pstat-l">${t('pro.jobs')}</div></div>
+        <div class="pstat"><div class="pstat-n">${p.reviews}</div><div class="pstat-l">${t('pro.reviews')}</div></div>
+        <div class="pstat"><div class="pstat-n">${p.rating}★</div><div class="pstat-l">${t('stats.rating')}</div></div>
+      </div>
+    </div>
+    <div class="profile-body">
+      <div class="profile-card">
+        <h3><i class="fas fa-user"></i>${t('pro.about')}</h3>
+        <p class="profile-about">${p.about}</p>
+      </div>
+      <div class="profile-card">
+        <h3><i class="fas fa-images"></i>${t('pro.gallery')}</h3>
+        <div class="gallery">
+          ${p.gallery.map(g=>`
+            <div class="gallery-item">
+              <div class="gallery-item-bg" style="background:linear-gradient(135deg,${p.color.split('(')[1]?.split(')')[0]||'#1a5299,#0d2a4e'});">${g}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="profile-card">
+        <h3><i class="fas fa-phone"></i>${t('pro.contact')}</h3>
+        <div class="contact-btns">
+          <button class="btn-contact btn-wp" onclick="window.open('https://wa.me/${p.phone.replace(/\D/g,'')}','_blank')">
+            <i class="fab fa-whatsapp"></i>${t('pro.whatsapp')}
+          </button>
+          <button class="btn-contact btn-call" onclick="window.open('tel:${p.phone}')">
+            <i class="fas fa-phone"></i>${t('pro.call')}
+          </button>
+          <button class="btn-contact btn-mail" onclick="window.open('mailto:${p.email}')">
+            <i class="fas fa-envelope"></i>${t('pro.email')}
+          </button>
+        </div>
+      </div>
+      <div class="profile-card">
+        <h3><i class="fas fa-star"></i>${t('pro.feedback')}</h3>
+        ${p.feedback.map(f=>`
+          <div class="review-item">
+            <div class="review-top">
+              <div class="review-av" style="background:${f.avColor}">${f.av}</div>
+              <div>
+                <div class="review-name">${f.name}</div>
+                <div class="review-date">${f.date}</div>
+              </div>
+              <div class="review-stars" style="margin-left:auto">${'<i class="fas fa-star"></i>'.repeat(f.stars)}</div>
+            </div>
+            <div class="review-text">${f.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  goTo('p-profile');
+}
+
+// ═══════════════ SEARCH ═══════════════
+document.getElementById('bsrch').addEventListener('click',()=>{
+  const w=document.getElementById('swhat').value.trim();
+  const wh=document.getElementById('swhere').value.trim();
+  if(!w&&!wh){toast('⚠ '+t('search.what'));return;}
+  toast('🔍 A buscar...');
+  setTimeout(()=>toast('✓ '+t('pros.title')+'!'),1200);
+});
+
+document.getElementById('chips').addEventListener('click',e=>{
+  const chip=e.target.closest('.chip');
+  if(!chip)return;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  document.getElementById('swhat').value=chip.querySelector('span').textContent;
+});
+
+// ═══════════════ PLAN SELECTOR ═══════════════
+document.querySelectorAll('.popt').forEach(o=>{
+  o.addEventListener('click',()=>{
+    document.querySelectorAll('.popt').forEach(x=>x.classList.remove('sel'));
+    o.classList.add('sel');
+  });
+});
+
+// ═══════════════ PHOTO UPLOAD ═══════════════
+function handleProfilePhoto(input){
+  if(!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const up=document.getElementById('profile-upload');
+    up.innerHTML=`<img src="${e.target.result}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto;display:block"/><p style="margin-top:8px;font-size:13px;color:var(--blue);font-weight:600">✓ Foto adicionada</p>`;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function handleWorkPhotos(input){
+  const prev=document.getElementById('work-preview');
+  Array.from(input.files).slice(0,10).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=document.createElement('img');
+      img.src=e.target.result;
+      img.className='photo-thumb';
+      prev.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ═══════════════ REGISTER ═══════════════
+document.getElementById('breg').addEventListener('click',()=>{
+  const n=document.getElementById('rname').value.trim();
+  const e=document.getElementById('remail').value.trim();
+  const p=document.getElementById('rphone').value.trim();
+  const c=document.getElementById('rcountry').value;
+  const s=document.getElementById('rspec').value;
+  if(!n||!e||!p||!c||!s){toast('⚠ Preencha todos os campos');return;}
+  const btn=document.getElementById('breg');
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> A processar...';
+  btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML=`<i class="fas fa-user-check"></i><span>${t('reg.btn')}</span>`;
+    btn.disabled=false;
+    const suc=document.getElementById('rsuccess');
+    suc.textContent=t('reg.success');suc.classList.add('show');
+    toast('✓ '+t('toast.sent'));
+    setTimeout(()=>suc.classList.remove('show'),5000);
+    setTimeout(()=>openModal('fbmodal'),2500);
+  },1500);
+});
+
+// ═══════════════ PAYMENT MODAL ═══════════════
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+
+document.querySelectorAll('[data-plan]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const p=el.dataset.plan;
+    const names={basic:`${t('plan.basic.name')} — €29,90${t('plan.month')}`,professional:`${t('plan.pro.name')} — €59,90${t('plan.month')}`,premium:`${t('plan.premium.name')} — €99,90${t('plan.month')}`};
+    document.getElementById('paybadge').textContent=names[p]||p;
+    openModal('paymodal');
+  });
+});
+
+document.getElementById('bcpix').addEventListener('click',()=>{
+  navigator.clipboard.writeText(document.getElementById('pixval').textContent).then(()=>toast('✓ '+t('toast.copied')));
+});
+
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);});
+});
+
+// ═══════════════ FEEDBACK ═══════════════
+document.querySelectorAll('#srate i').forEach(s=>{
+  s.addEventListener('click',()=>{
+    rating=+s.dataset.v;
+    document.querySelectorAll('#srate i').forEach((x,i)=>{
+      x.className=i<rating?'fas fa-star act':'far fa-star';
+    });
+  });
+  s.addEventListener('mouseover',()=>{
+    const v=+s.dataset.v;
+    document.querySelectorAll('#srate i').forEach((x,i)=>{x.className=i<v?'fas fa-star act':'far fa-star';});
+  });
+  s.addEventListener('mouseout',()=>{
+    document.querySelectorAll('#srate i').forEach((x,i)=>{x.className=i<rating?'fas fa-star act':'far fa-star';});
+  });
+});
+
+document.getElementById('bsendfb').addEventListener('click',()=>{
+  if(!rating){toast('⭐ Selecione uma estrela');return;}
+  toast('✓ '+t('toast.thanks'));closeModal('fbmodal');
+});
+
+document.getElementById('bwa').addEventListener('click',()=>{
+  window.open(`https://wa.me/?text=${encodeURIComponent('Obra Fácil Europa! 👷 https://maltepuro.github.io/Obrafacil/')}`,'_blank');
+});
+
+document.getElementById('bclink').addEventListener('click',()=>{
+  navigator.clipboard.writeText('https://maltepuro.github.io/Obrafacil/').then(()=>toast('✓ '+t('toast.linkCopied')));
+});
+
+// ═══════════════ INSTALL ═══════════════
+let dp;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;document.getElementById('ibanner').classList.add('show');});
+document.getElementById('binst').addEventListener('click',async()=>{document.getElementById('ibanner').classList.remove('show');if(dp){dp.prompt();await dp.userChoice;dp=null;}});
+document.getElementById('bdism').addEventListener('click',()=>document.getElementById('ibanner').classList.remove('show'));
+window.addEventListener('appinstalled',()=>document.getElementById('ibanner').classList.remove('show'));
+
+// ═══════════════ ESC ═══════════════
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal('paymodal');closeModal('fbmodal');}});
+
+// ═══════════════ SW ═══════════════
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+// ═══════════════ INIT ═══════════════
+renderProCards();
+applyLang('pt');
+</script>
+</body>
+</html>

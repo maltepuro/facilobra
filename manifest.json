@@ -2,26 +2,13 @@
   "name": "Obra Fácil Europa",
   "short_name": "Obra Fácil",
   "description": "Encontre os melhores profissionais de construção na Europa",
-  "start_url": "/index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#0d2a4e",
   "theme_color": "#0d2a4e",
   "orientation": "portrait-primary",
-  "lang": "pt-BR",
   "icons": [
-    {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "categories": ["business", "utilities"],
-  "screenshots": []
+    {"src": "icon.png","sizes": "192x192","type": "image/png","purpose": "any maskable"},
+    {"src": "icon.png","sizes": "512x512","type": "image/png","purpose": "any maskable"}
+  ]
 }

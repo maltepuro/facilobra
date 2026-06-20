@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Painel Admin — Obra Fácil Europa</title>
+<link rel="icon" href="./icon.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0d2a4e;--blue:#1a5299;--gold:#f5a800;--bg:#f0f4fa;--card:#fff;--text:#0d2a4e;--muted:#6b7a90;--border:#dce6f5;--green:#16a34a;--red:#dc2626}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
+.header{max-width:900px;margin:0 auto 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.header-left{display:flex;align-items:center;gap:12px}
+.header img{width:42px;height:42px;border-radius:50%}
+.header h1{font-size:18px;font-weight:800;color:var(--navy)}
+.btn-logout{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+.container{max-width:900px;margin:0 auto}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-box{background:var(--card);border-radius:14px;padding:18px;text-align:center;box-shadow:0 4px 16px rgba(13,42,78,.08)}
+.stat-num{font-size:26px;font-weight:800;color:var(--blue)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+.filter-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.ftab{background:var(--card);border:1.5px solid var(--border);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s}
+.ftab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pro-card{background:var(--card);border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 4px 16px rgba(13,42,78,.08);border-left:4px solid var(--border)}
+.pro-card.pending{border-left-color:var(--gold)}
+.pro-card.active{border-left-color:var(--green)}
+.pro-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.pro-name{font-size:16px;font-weight:800;color:var(--navy)}
+.pro-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.status-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;white-space:nowrap}
+.status-badge.pending{background:#fff8e6;color:#92400e}
+.status-badge.active{background:#e6f9ee;color:#15803d}
+.pro-info{font-size:13px;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.pro-info i{color:var(--blue);width:16px}
+.pro-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:all .2s}
+.btn:active{transform:scale(.95)}
+.btn-confirm{background:var(--green);color:#fff}
+.btn-confirm:hover{background:#15803d}
+.btn-wa{background:#25D366;color:#fff}
+.btn-wa:hover{background:#1da851}
+.btn-delete{background:#fef2f2;color:var(--red);border:1.5px solid #fca5a5}
+.btn-delete:hover{background:#fee2e2}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state i{font-size:48px;margin-bottom:16px;opacity:.3}
+.login-box{max-width:340px;margin:80px auto;background:var(--card);border-radius:16px;padding:32px;box-shadow:0 8px 32px rgba(13,42,78,.12);text-align:center}
+.login-box img{width:56px;height:56px;border-radius:50%;margin-bottom:16px}
+.login-box h2{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:18px}
+.login-box input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:14px;margin-bottom:12px;outline:none;font-family:inherit}
+.login-box input:focus{border-color:var(--blue)}
+.login-box button{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-box button:disabled{opacity:.6;cursor:not-allowed}
+.login-error{color:var(--red);font-size:13px;margin-bottom:12px;display:none}
+.login-error.show{display:block}
+#app{display:none}
+.loading{text-align:center;padding:60px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <img src="./icon.png" alt=""/>
+    <h2><i class="fas fa-lock"></i> Painel Admin</h2>
+    <div class="login-error" id="login-error">E-mail ou senha incorretos.</div>
+    <input type="email" id="admin-email" placeholder="O seu e-mail" autocomplete="username"/>
+    <input type="password" id="admin-pw" placeholder="Senha" autocomplete="current-password" onkeypress="if(event.key==='Enter')doLogin()"/>
+    <button id="btn-login" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <img src="./icon.png" alt=""/>
+      <h1>Painel Admin — Obra Fácil Europa</h1>
+    </div>
+    <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+  </div>
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Cadastros</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendentes</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-active">0</div><div class="stat-label">Ativos</div></div>
+    </div>
+    <div class="filter-tabs">
+      <div class="ftab active" data-f="all" onclick="filterPros(this,'all')">Todos</div>
+      <div class="ftab" data-f="pending_payment" onclick="filterPros(this,'pending_payment')">Pendentes</div>
+      <div class="ftab" data-f="active" onclick="filterPros(this,'active')">Ativos</div>
+    </div>
+    <div id="pro-list"><div class="loading"><i class="fas fa-spinner fa-spin"></i> A carregar...</div></div>
+  </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAwvCAlhtfi1TVxPn56LqiE_9aMhNgN_uU",
+  authDomain: "obrafacil2.firebaseapp.com",
+  projectId: "obrafacil2",
+  storageBucket: "obrafacil2.firebasestorage.app",
+  messagingSenderId: "812079331128",
+  appId: "1:812079331128:web:66f357bad38c028a2fb3cd"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+async function doLogin(){
+  const email=document.getElementById('admin-email').value.trim();
+  const pw=document.getElementById('admin-pw').value;
+  const errEl=document.getElementById('login-error');
+  const btn=document.getElementById('btn-login');
+  errEl.classList.remove('show');
+  if(!email||!pw){errEl.textContent='Preencha e-mail e senha.';errEl.classList.add('show');return;}
+  btn.disabled=true;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> A entrar...';
+  try{
+    await auth.signInWithEmailAndPassword(email,pw);
+  }catch(e){
+    errEl.textContent='E-mail ou senha incorretos.';
+    errEl.classList.add('show');
+    btn.disabled=false;
+    btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Entrar';
+  }
+}
+
+function doLogout(){
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    loadAll();
+  }else{
+    document.getElementById('login-screen').style.display='block';
+    document.getElementById('app').style.display='none';
+    const btn=document.getElementById('btn-login');
+    btn.disabled=false;
+    btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Entrar';
+  }
+});
+
+let allPros=[];
+let currentFilter='all';
+
+async function loadAll(){
+  try{
+    const snap=await db.collection('professionals').orderBy('createdAt','desc').get();
+    allPros=snap.docs.map(doc=>({id:doc.id,...doc.data()}));
+    updateStats();
+    renderList();
+  }catch(e){
+    document.getElementById('pro-list').innerHTML='<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar dados.</p></div>';
+    console.error(e);
+  }
+}
+
+function updateStats(){
+  document.getElementById('stat-total').textContent=allPros.length;
+  document.getElementById('stat-pending').textContent=allPros.filter(p=>p.status==='pending_payment').length;
+  document.getElementById('stat-active').textContent=allPros.filter(p=>p.status==='active').length;
+}
+
+function filterPros(el,f){
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter=f;
+  renderList();
+}
+
+function renderList(){
+  const list=currentFilter==='all'?allPros:allPros.filter(p=>p.status===currentFilter);
+  const container=document.getElementById('pro-list');
+  if(!list.length){
+    container.innerHTML='<div class="empty-state"><i class="fas fa-inbox"></i><p>Nenhum cadastro encontrado.</p></div>';
+    return;
+  }
+  container.innerHTML=list.map(p=>{
+    const statusClass=p.status==='active'?'active':'pending';
+    const statusLabel=p.status==='active'?'✓ Ativo':'⏳ Aguardando Pagamento';
+    const wpNum=(p.phone||'').replace(/\D/g,'');
+    let expiresStr='';
+    if(p.expiresAt){
+      try{const d=p.expiresAt.toDate();expiresStr=' · Vence: '+d.toLocaleDateString('pt-PT');}catch(e){}
+    }
+    return '<div class="pro-card '+statusClass+'">'+
+      '<div class="pro-top"><div><div class="pro-name">'+(p.name||'Sem nome')+'</div>'+
+      '<div class="pro-meta">'+(p.specialty||'-')+' · '+(p.city||'-')+', '+(p.country||'-')+expiresStr+'</div></div>'+
+      '<span class="status-badge '+statusClass+'">'+statusLabel+'</span></div>'+
+      '<div class="pro-info"><i class="fas fa-envelope"></i>'+(p.email||'-')+'</div>'+
+      '<div class="pro-info"><i class="fas fa-phone"></i>'+(p.phone||'-')+'</div>'+
+      '<div class="pro-info"><i class="fas fa-tag"></i>Plano '+(p.plan||'-')+' · €'+(p.planPrice||'-')+'/mês</div>'+
+      '<div class="pro-actions">'+
+      (p.status==='pending_payment'?'<button class="btn btn-confirm" onclick="confirmPayment(\''+p.id+'\')"><i class="fas fa-check"></i> Confirmar Pagamento</button>':'')+
+      (wpNum?'<button class="btn btn-wa" onclick="window.open(\'https://wa.me/'+wpNum+'\',\'_blank\')"><i class="fab fa-whatsapp"></i> WhatsApp</button>':'')+
+      '<button class="btn btn-delete" onclick="deletePro(\''+p.id+'\')"><i class="fas fa-trash"></i> Remover</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+async function confirmPayment(id){
+  if(!confirm('Confirmar que o pagamento foi recebido? O anúncio ficará ativo por 1 mês.'))return;
+  const expiresAt=new Date();
+  expiresAt.setMonth(expiresAt.getMonth()+1);
+  try{
+    await db.collection('professionals').doc(id).update({
+      status:'active',
+      activatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt:firebase.firestore.Timestamp.fromDate(expiresAt)
+    });
+    alert('✓ Pagamento confirmado! O profissional já aparece no site.');
+    loadAll();
+  }catch(e){alert('Erro ao confirmar: '+e.message);console.error(e);}
+}
+
+async function deletePro(id){
+  if(!confirm('Tem certeza que quer remover este cadastro? Esta ação não pode ser desfeita.'))return;
+  try{
+    await db.collection('professionals').doc(id).delete();
+    loadAll();
+  }catch(e){alert('Erro ao remover: '+e.message);console.error(e);}
+}
+</script>
+</body>
+</html>

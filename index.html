@@ -26,6 +26,9 @@
 <link rel="icon" href="./icon.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--navy:#0d2a4e;--navy2:#133a6a;--blue:#1a5299;--gold:#f5a800;--gold2:#ffc940;--bg:#f0f4fa;--card:#fff;--text:#0d2a4e;--muted:#6b7a90;--border:#dce6f5;--r:16px;--sh:0 4px 24px rgba(13,42,78,.10);--shlg:0 12px 48px rgba(13,42,78,.16);--green:#16a34a}
@@ -664,7 +667,79 @@ const PROS=[
   {id:6,ini:'LG',name:'Lucas García',roleKey:'svc.construction',roleDef:'Construção Civil',city:'Barcelona',country:'Espanha',phone:'34622987654',email:'lucas.garcia@email.com',rating:4,stars:[1,1,1,1,0],color:'linear-gradient(135deg,#b45309,#fbbf24)',badge:false,about:'Construtor civil com 12 anos de experiência em obras e reformas.',jobs:134,reviews:31,gallery:['🏗️','🧱','⛏️','🏠','🔧','🏢'],fb:[{name:'Elena M.',av:'EM',avc:'#1a5299',stars:4,date:'Fev 2025',text:'Boa obra!'},{name:'Roberto P.',av:'RP',avc:'#7c3aed',stars:4,date:'Jan 2025',text:'Profissional sério.'}]}
 ];
 
-// ═══════ APP NAMES PER LANGUAGE ═══════
+// ═══════ FIREBASE CONFIG ═══════
+const firebaseConfig = {
+  apiKey: "AIzaSyAwvCAlhtfi1TVxPn56LqiE_9aMhNgN_uU",
+  authDomain: "obrafacil2.firebaseapp.com",
+  projectId: "obrafacil2",
+  storageBucket: "obrafacil2.firebasestorage.app",
+  messagingSenderId: "812079331128",
+  appId: "1:812079331128:web:66f357bad38c028a2fb3cd"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ═══════ IMGBB CONFIG ═══════
+const IMGBB_KEY = "15ce38a5f79edbb8074118ad33084989";
+
+async function uploadToImgBB(base64Data){
+  try{
+    const base64Clean = base64Data.split(',')[1];
+    const formData = new FormData();
+    formData.append('key', IMGBB_KEY);
+    formData.append('image', base64Clean);
+    const res = await fetch('https://api.imgbb.com/1/upload', {method:'POST', body:formData});
+    const data = await res.json();
+    if(data.success) return data.data.url;
+    return null;
+  }catch(e){console.error('ImgBB upload error:',e);return null;}
+}
+
+// ═══════ FIRESTORE HELPERS ═══════
+async function saveProfessional(profData){
+  try{
+    const docRef = await db.collection('professionals').add({
+      ...profData,
+      status: 'pending_payment',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt: null
+    });
+    return docRef.id;
+  }catch(e){console.error('Firestore save error:',e);return null;}
+}
+
+async function activateProfessional(profId){
+  try{
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth()+1);
+    await db.collection('professionals').doc(profId).update({
+      status: 'active',
+      activatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
+    });
+    return true;
+  }catch(e){console.error('Firestore activate error:',e);return false;}
+}
+
+async function loadActiveProfessionals(){
+  try{
+    const snap = await db.collection('professionals').where('status','==','active').get();
+    return snap.docs.map(doc=>({id:doc.id,...doc.data()}));
+  }catch(e){console.error('Firestore load error:',e);return [];}
+}
+
+async function saveFeedback(profId,rating,comment){
+  try{
+    await db.collection('feedback').add({
+      profId: profId||'general',
+      rating, comment,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return true;
+  }catch(e){console.error('Firestore feedback error:',e);return false;}
+}
+
+
 const APP_NAMES={
   pt:'Obra Fácil <em>Europa</em>',
   en:'Easy Build <em>Europe</em>',
@@ -724,7 +799,23 @@ function starsH(stars){return stars.map(v=>v===1?'<i class="fas fa-star"></i>':v
 // ═══════ PRO CARDS ═══════
 function renderCards(){
   const g=document.getElementById('pgrid');if(!g)return;
-  g.innerHTML=PROS.map(p=>`
+  const realCardsHTML=(realPros||[]).map(p=>{
+    const initials=p.name?p.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'??';
+    const avStyle=p.profilePhoto?`background-image:url('${p.profilePhoto}');background-size:cover;background-position:center`:'background:linear-gradient(135deg,#1a5299,#0d2a4e)';
+    return `
+    <div class="prc" onclick="showRealProf('${p.id}')">
+      <div class="prc-top">
+        <div class="prc-av" style="${avStyle}">${p.profilePhoto?'':initials}</div>
+        <div class="prc-inf"><h3>${p.name}</h3><div class="prc-role">${p.specialty}</div></div>
+      </div>
+      <p class="prc-det"><i class="fas fa-map-marker-alt"></i>${p.city}, ${p.country}</p>
+      <p class="prc-det"><i class="fas fa-phone"></i>${p.phone}</p>
+      <span class="prc-badge" style="background:#e6f9ee;color:var(--green)">✓ Novo</span>
+      <button class="prc-btn"><span>${t('pro.viewProfile')}</span><i class="fas fa-arrow-right"></i></button>
+    </div>`;
+  }).join('');
+
+  const demoCardsHTML=PROS.map(p=>`
     <div class="prc" onclick="showProf(${p.id})">
       <div class="prc-top">
         <div class="prc-av" style="background:${p.color}">${p.ini}</div>
@@ -736,6 +827,51 @@ function renderCards(){
       ${p.badge?`<span class="prc-badge">${t('pro.verified')}</span>`:''}
       <button class="prc-btn"><span>${t('pro.viewProfile')}</span><i class="fas fa-arrow-right"></i></button>
     </div>`).join('');
+
+  g.innerHTML=realCardsHTML+demoCardsHTML;
+}
+
+function showRealProf(id){
+  const p=(realPros||[]).find(x=>x.id===id);if(!p)return;
+  const initials=p.name?p.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'??';
+  const avHTML=p.profilePhoto?`<img src="${p.profilePhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:initials;
+  const galleryHTML=(p.workPhotos&&p.workPhotos.length)?p.workPhotos.map(url=>`<div class="gitem" style="background-image:url('${url}');background-size:cover;background-position:center"></div>`).join(''):'<p style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;padding:20px">Sem fotos de trabalhos ainda</p>';
+  let vencStr='—';
+  if(p.expiresAt){
+    try{const d=p.expiresAt.toDate();vencStr=d.toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'});}catch(e){}
+  }
+  document.getElementById('profcontent').innerHTML=`
+    <div class="prof-hero">
+      <div class="prof-av" style="background:linear-gradient(135deg,#1a5299,#0d2a4e)">${avHTML}</div>
+      <div class="prof-name">${p.name}</div>
+      <div class="prof-role">${p.specialty}</div>
+      <div class="prof-loc"><i class="fas fa-map-marker-alt"></i>${p.city}, ${p.country}</div>
+      <div class="prof-stars">${starsH([1,1,1,1,1])}</div>
+      <div class="prof-stats">
+        <div class="pst"><div class="pst-n">Novo</div><div class="pst-l">${t('pro.jobs')}</div></div>
+        <div class="pst"><div class="pst-n">0</div><div class="pst-l">${t('pro.reviews')}</div></div>
+        <div class="pst"><div class="pst-n">5.0★</div><div class="pst-l">${t('stats.rating')}</div></div>
+      </div>
+    </div>
+    <div class="prof-body">
+      <div class="pcard"><h3><i class="fas fa-user"></i>${t('pro.about')}</h3><p class="pabout">${p.description||'Profissional cadastrado na plataforma Obra Fácil Europa.'}</p>
+        ${p.status==='active'?`<div class="venc-badge"><i class="fas fa-calendar-check"></i>Anúncio ativo até ${vencStr} · 🌍 Europa Inteira</div>`:'<div class="venc-badge" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b"><i class="fas fa-clock"></i>Aguardando confirmação de pagamento</div>'}
+      </div>
+      <div class="pcard"><h3><i class="fas fa-images"></i>${t('pro.gallery')}</h3>
+        <div class="gallery">${galleryHTML}</div>
+      </div>
+      <div class="pcard"><h3><i class="fas fa-phone"></i>${t('pro.contact')}</h3>
+        <div class="cbtns">
+          <button class="cbtn cbtn-wp" onclick="window.open('https://wa.me/${(p.phone||'').replace(/\D/g,'')}','_blank')"><i class="fab fa-whatsapp"></i>${t('pro.whatsapp')}</button>
+          <button class="cbtn cbtn-cl" onclick="window.open('tel:${p.phone}')"><i class="fas fa-phone"></i>${t('pro.call')}</button>
+          <button class="cbtn cbtn-em" onclick="window.open('mailto:${p.email}')"><i class="fas fa-envelope"></i>${t('pro.email')}</button>
+        </div>
+      </div>
+      <div class="pcard"><h3><i class="fas fa-star"></i>${t('pro.feedback')}</h3>
+        <p style="font-size:13px;color:var(--muted);text-align:center;padding:10px 0">Profissional novo na plataforma — ainda sem avaliações.</p>
+      </div>
+    </div>`;
+  go('p4');
 }
 
 // ═══════ PRO PROFILE ═══════
@@ -793,27 +929,93 @@ function selPlan(el){
   selPlanData={name:el.querySelector('.pon').textContent,price:el.dataset.price,key:el.dataset.val};
 }
 
-// ═══════ PHOTO UPLOAD ═══════
-function hPrPhoto(i){if(!i.files[0])return;const r=new FileReader();r.onload=e=>{document.getElementById('pupr').innerHTML=`<img src="${e.target.result}" style="width:68px;height:68px;border-radius:50%;object-fit:cover;margin:0 auto;display:block"/><p style="margin-top:7px;font-size:12px;color:var(--blue);font-weight:600">✓ Foto adicionada</p>`;};r.readAsDataURL(i.files[0]);}
-function hWkPhotos(i){const p=document.getElementById('wkprev');Array.from(i.files).slice(0,10).forEach(f=>{const r=new FileReader();r.onload=e=>{const img=document.createElement('img');img.src=e.target.result;img.style.cssText='width:64px;height:64px;border-radius:9px;object-fit:cover;border:2px solid var(--border)';p.appendChild(img);};r.readAsDataURL(f);});}
+// ═══════ PHOTO UPLOAD (REAL - ImgBB) ═══════
+let profilePhotoURL = null;
+let workPhotoURLs = [];
 
-// ═══════ REGISTER → PAYMENT ═══════
-document.getElementById('breg').addEventListener('click',()=>{
+function hPrPhoto(i){
+  if(!i.files[0])return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    document.getElementById('pupr').innerHTML=`<i class="fas fa-spinner fa-spin" style="font-size:28px;color:var(--blue)"></i><p style="margin-top:7px;font-size:12px;color:var(--muted)">Enviando foto...</p>`;
+    const url=await uploadToImgBB(e.target.result);
+    if(url){
+      profilePhotoURL=url;
+      document.getElementById('pupr').innerHTML=`<img src="${url}" style="width:68px;height:68px;border-radius:50%;object-fit:cover;margin:0 auto;display:block"/><p style="margin-top:7px;font-size:12px;color:var(--green);font-weight:600">✓ Foto guardada</p>`;
+    }else{
+      document.getElementById('pupr').innerHTML=`<i class="fas fa-exclamation-triangle" style="font-size:28px;color:#dc2626"></i><p style="margin-top:7px;font-size:12px;color:#dc2626">Erro ao enviar. Toque para tentar de novo.</p>`;
+      toast('⚠ Erro ao enviar foto, tente novamente');
+    }
+  };
+  r.readAsDataURL(i.files[0]);
+}
+
+function hWkPhotos(i){
+  const p=document.getElementById('wkprev');
+  const files=Array.from(i.files).slice(0,10-workPhotoURLs.length);
+  files.forEach(f=>{
+    const r=new FileReader();
+    r.onload=async e=>{
+      const placeholder=document.createElement('div');
+      placeholder.style.cssText='width:64px;height:64px;border-radius:9px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--bg)';
+      placeholder.innerHTML='<i class="fas fa-spinner fa-spin" style="color:var(--blue)"></i>';
+      p.appendChild(placeholder);
+      const url=await uploadToImgBB(e.target.result);
+      if(url){
+        workPhotoURLs.push(url);
+        placeholder.innerHTML=`<img src="${url}" style="width:100%;height:100%;border-radius:7px;object-fit:cover"/>`;
+        placeholder.style.border='2px solid var(--green)';
+      }else{
+        placeholder.innerHTML='<i class="fas fa-times" style="color:#dc2626"></i>';
+        toast('⚠ Erro ao enviar uma foto');
+      }
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+// ═══════ REGISTER → SAVE TO FIRESTORE → PAYMENT ═══════
+let currentProfId=null;
+
+document.getElementById('breg').addEventListener('click',async()=>{
   const n=document.getElementById('rn').value.trim();
   const e=document.getElementById('re').value.trim();
   const p=document.getElementById('rp').value.trim();
   const c=document.getElementById('rc').value;
+  const ci=document.getElementById('rci').value.trim();
   const s=document.getElementById('rs').value;
+  const d=document.getElementById('rd').value.trim();
   if(!n||!e||!p||!c||!s){toast('⚠ Preencha todos os campos obrigatórios');return;}
-  showPayment(n,selPlanData);
+
+  const btn=document.getElementById('breg');
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> A guardar dados...';
+  btn.disabled=true;
+
+  const profData={
+    name:n, email:e, phone:p, country:c, city:ci, specialty:s, description:d,
+    plan:selPlanData.key, planPrice:selPlanData.price,
+    profilePhoto:profilePhotoURL||null, workPhotos:workPhotoURLs
+  };
+
+  const profId=await saveProfessional(profData);
+  btn.innerHTML=`<i class="fas fa-arrow-right"></i><span>${t('reg.btn')}</span>`;
+  btn.disabled=false;
+
+  if(profId){
+    currentProfId=profId;
+    toast('✓ Dados guardados com sucesso!');
+    showPayment(n,selPlanData,profId);
+  }else{
+    toast('⚠ Erro ao guardar. Verifique a sua internet e tente novamente.');
+  }
 });
 
 // ═══════ PAYMENT PAGE ═══════
-function showPayment(proName,plan){
+function showPayment(proName,plan,profId){
   const planNames={basic:t('plan.basic.name'),professional:t('plan.pro.name'),premium:t('plan.premium.name')};
   const pName=planNames[plan.key]||plan.name;
   const price=plan.price;
-  const wpMsg=encodeURIComponent(`Olá! Sou ${proName} e acabei de me cadastrar na Obra Fácil Europa.\n\nPlano: ${pName} — €${price}/mês\n\nSegue em anexo o comprovante de pagamento para activar o meu anúncio em toda a Europa. 🌍`);
+  const wpMsg=encodeURIComponent(`Olá! Sou ${proName} e acabei de me cadastrar na Obra Fácil Europa.\n\nPlano: ${pName} — €${price}/mês\nID do cadastro: ${profId||'N/A'}\n\nSegue em anexo o comprovante de pagamento para activar o meu anúncio em toda a Europa. 🌍`);
   const wpNum='5543991603892';
 
   document.getElementById('pay-content').innerHTML=`
@@ -864,10 +1066,10 @@ function showPayment(proName,plan){
 
     <div class="pay-notice"><i class="fas fa-info-circle"></i><span>${t('pay.notice')}</span></div>
 
-    <button class="btn-wp-pay" onclick="sendWP('${wpNum}','${wpMsg}')">
+    <button class="btn-wp-pay" onclick="sendWP('${wpNum}','${wpMsg}','${profId||''}')">
       <i class="fab fa-whatsapp"></i>${t('pay.sendWP')}
     </button>
-    <button class="btn-pending" onclick="showNotif()">
+    <button class="btn-pending" onclick="markPending('${profId||''}')">
       <i class="fas fa-clock"></i>${t('pay.pending')}
     </button>
   `;
@@ -883,14 +1085,19 @@ function copyPix(){
   navigator.clipboard.writeText('43991603892').then(()=>toast('✓ Chave Pix copiada!'));
 }
 
-function sendWP(num,msg){
+function sendWP(num,msg,profId){
   window.open(`https://wa.me/${num}?text=${msg}`,'_blank');
-  setTimeout(()=>showNotif(),2000);
+  setTimeout(()=>showNotif(profId),2000);
 }
 
-function showNotif(){
+function markPending(profId){
+  showNotif(profId);
+}
+
+function showNotif(profId){
   document.getElementById('notif').classList.add('open');
   document.body.style.overflow='hidden';
+  if(profId) currentProfId=profId;
 }
 
 function closeNotif(){
@@ -914,15 +1121,27 @@ document.getElementById('chips').addEventListener('click',e=>{
   document.getElementById('sw').value=c.querySelector('span').textContent;
 });
 
-// ═══════ FEEDBACK ═══════
+// ═══════ FEEDBACK (REAL) ═══════
 document.querySelectorAll('#srate i').forEach(s=>{
   s.addEventListener('click',()=>{rating=+s.dataset.v;document.querySelectorAll('#srate i').forEach((x,i)=>{x.className=i<rating?'fas fa-star act':'far fa-star';});});
   s.addEventListener('mouseover',()=>{const v=+s.dataset.v;document.querySelectorAll('#srate i').forEach((x,i)=>{x.className=i<v?'fas fa-star act':'far fa-star';});});
   s.addEventListener('mouseout',()=>{document.querySelectorAll('#srate i').forEach((x,i)=>{x.className=i<rating?'fas fa-star act':'far fa-star';});});
 });
-document.getElementById('bsfb').addEventListener('click',()=>{if(!rating){toast('⭐ Selecione uma estrela');return;}toast('✓ Obrigado!');closeM('fbmod');});
+document.getElementById('bsfb').addEventListener('click',async()=>{
+  if(!rating){toast('⭐ Selecione uma estrela');return;}
+  const comment=document.getElementById('fbc').value.trim();
+  await saveFeedback(currentProfId,rating,comment);
+  toast('✓ Obrigado!');closeM('fbmod');
+});
 document.getElementById('bwa').addEventListener('click',()=>window.open(`https://wa.me/?text=${encodeURIComponent('Obra Fácil Europa! 👷 https://maltepuro.github.io/facilobra/')}`,'_blank'));
 document.getElementById('bcl').addEventListener('click',()=>navigator.clipboard.writeText('https://maltepuro.github.io/facilobra/').then(()=>toast('✓ Link copiado!')));
+
+// ═══════ LOAD REAL PROFESSIONALS FROM FIRESTORE ═══════
+let realPros=[];
+async function loadRealPros(){
+  realPros=await loadActiveProfessionals();
+  renderCards();
+}
 
 // ═══════ INSTALL ═══════
 let dp;
@@ -949,6 +1168,8 @@ document.getElementById('btnP').addEventListener('click',()=>go('p3'));
 // ═══════ INIT ═══════
 setLang('pt');
 renderCards();
+loadRealPros();
+
 </script>
 </body>
 </html>

@@ -155,6 +155,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .prc-stars i{color:var(--gold);font-size:11px}
 .prc-stars i.e{color:var(--border)}
 .prc-badge{display:inline-block;background:#e8f5ff;color:var(--blue);font-size:10px;font-weight:700;border-radius:100px;padding:2px 9px;margin-top:8px}
+.prc.plan-premium{border:2px solid var(--gold);box-shadow:0 8px 28px rgba(245,168,0,.18);position:relative}
+.prc.plan-premium::before{content:'⭐ PREMIUM';position:absolute;top:-10px;right:14px;background:var(--gold);color:var(--navy);font-size:10px;font-weight:800;padding:3px 10px;border-radius:100px;letter-spacing:.4px;box-shadow:0 3px 10px rgba(245,168,0,.4)}
+.prc.plan-professional{border:1.5px solid var(--blue);box-shadow:0 6px 22px rgba(26,82,153,.14)}
+.prc.plan-professional::before{content:'✦ DESTAQUE';position:absolute;top:-10px;right:14px;background:var(--blue);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:100px;letter-spacing:.4px}
+.prc.plan-professional{position:relative}
+.badge-verified{display:inline-flex;align-items:center;gap:4px;background:#e6f9ee;color:var(--green);font-size:10px;font-weight:700;border-radius:100px;padding:3px 10px;margin-top:8px;margin-right:6px}
+.badge-premium{display:inline-flex;align-items:center;gap:4px;background:#fff8e6;color:#b87b00;font-size:10px;font-weight:700;border-radius:100px;padding:3px 10px;margin-top:8px;margin-right:6px}
+.badge-pro{display:inline-flex;align-items:center;gap:4px;background:#e8f0ff;color:var(--blue);font-size:10px;font-weight:700;border-radius:100px;padding:3px 10px;margin-top:8px;margin-right:6px}
 .prc-btn{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--navy);margin-top:10px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px}
 .prc-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
 .prc-btn:active{transform:scale(.95)}
@@ -799,18 +807,32 @@ function starsH(stars){return stars.map(v=>v===1?'<i class="fas fa-star"></i>':v
 // ═══════ PRO CARDS ═══════
 function renderCards(){
   const g=document.getElementById('pgrid');if(!g)return;
-  const realCardsHTML=(realPros||[]).map(p=>{
+
+  // Ordenar profissionais reais: premium primeiro, depois professional, depois basic
+  const planOrder={premium:0,professional:1,basic:2};
+  const sortedRealPros=[...(realPros||[])].sort((a,b)=>(planOrder[a.plan]??3)-(planOrder[b.plan]??3));
+
+  const realCardsHTML=sortedRealPros.map(p=>{
     const initials=p.name?p.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'??';
     const avStyle=p.profilePhoto?`background-image:url('${p.profilePhoto}');background-size:cover;background-position:center`:'background:linear-gradient(135deg,#1a5299,#0d2a4e)';
+    const planClass=p.plan==='premium'?'plan-premium':p.plan==='professional'?'plan-professional':'';
+    let badgesHTML='';
+    if(p.plan==='premium'){
+      badgesHTML='<span class="badge-premium">★ Premium</span><span class="badge-verified">✓ Verificado</span>';
+    }else if(p.plan==='professional'){
+      badgesHTML='<span class="badge-pro">✦ Profissional</span><span class="badge-verified">✓ Verificado</span>';
+    }else{
+      badgesHTML='<span class="badge-verified">✓ Verificado</span>';
+    }
     return `
-    <div class="prc" onclick="showRealProf('${p.id}')">
+    <div class="prc ${planClass}" onclick="showRealProf('${p.id}')">
       <div class="prc-top">
         <div class="prc-av" style="${avStyle}">${p.profilePhoto?'':initials}</div>
         <div class="prc-inf"><h3>${p.name}</h3><div class="prc-role">${p.specialty}</div></div>
       </div>
       <p class="prc-det"><i class="fas fa-map-marker-alt"></i>${p.city}, ${p.country}</p>
       <p class="prc-det"><i class="fas fa-phone"></i>${p.phone}</p>
-      <span class="prc-badge" style="background:#e6f9ee;color:var(--green)">✓ Novo</span>
+      <div>${badgesHTML}</div>
       <button class="prc-btn"><span>${t('pro.viewProfile')}</span><i class="fas fa-arrow-right"></i></button>
     </div>`;
   }).join('');
@@ -840,12 +862,16 @@ function showRealProf(id){
   if(p.expiresAt){
     try{const d=p.expiresAt.toDate();vencStr=d.toLocaleDateString('pt-PT',{day:'2-digit',month:'long',year:'numeric'});}catch(e){}
   }
+  let profPlanBadge='';
+  if(p.plan==='premium'){profPlanBadge='<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(245,168,0,.2);border:1px solid rgba(245,168,0,.4);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px">★ Profissional Premium</div>';}
+  else if(p.plan==='professional'){profPlanBadge='<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:700;color:#fff;margin-bottom:10px">✦ Profissional em Destaque</div>';}
   document.getElementById('profcontent').innerHTML=`
     <div class="prof-hero">
       <div class="prof-av" style="background:linear-gradient(135deg,#1a5299,#0d2a4e)">${avHTML}</div>
       <div class="prof-name">${p.name}</div>
       <div class="prof-role">${p.specialty}</div>
       <div class="prof-loc"><i class="fas fa-map-marker-alt"></i>${p.city}, ${p.country}</div>
+      ${profPlanBadge}
       <div class="prof-stars">${starsH([1,1,1,1,1])}</div>
       <div class="prof-stats">
         <div class="pst"><div class="pst-n">Novo</div><div class="pst-l">${t('pro.jobs')}</div></div>

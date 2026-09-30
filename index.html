@@ -525,12 +525,16 @@ footer p{font-size:12px;margin-bottom:8px}
         </div>
         <div class="fg"><label data-i18n="form.city">Cidade</label><input type="text" id="rci" placeholder="Lisboa..."/></div>
         <div class="fg"><label data-i18n="form.specialty">Especialidade</label>
-          <select id="rs"><option value="">-- Selecionar --</option>
-            <option>Construção Civil</option><option>Eletricista</option>
-            <option>Azulejista</option><option>Encanador</option>
-            <option>Pintor</option><option>Carpinteiro</option>
-          </select>
-        </div>
+<select id="rs" onchange="document.getElementById('fgOutro').style.display=this.value=='outro'?'block':'none'"><option value="">-- Selecionar --</option>
+<option>Construção Civil</option><option>Eletricista</option>
+<option>Azulejista</option><option>Encanador</option>
+<option>Pintor</option><option>Carpinteiro</option>
+<option>Pedreiro</option><option>Gesseiro</option><option>Serralheiro</option>
+<option value="outro">Outro / Otra profissão</option>
+</select>
+</div>
+<div class="fg" id="fgOutro" style="display:none"><label>Qual? / ¿Cuál es tu profesión?</label><input type="text" id="rso" placeholder="Ex: Jardineiro, Limpieza, Mudanças"></div>
+        
         <div class="fg full"><label data-i18n="form.desc">Descrição</label><textarea id="rd" placeholder="Descreva a sua experiência..."></textarea></div>
       </div>
     </div>

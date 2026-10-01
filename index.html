@@ -1015,6 +1015,7 @@ document.getElementById('breg').addEventListener('click',async()=>{
   const c=document.getElementById('rc').value;
   const ci=document.getElementById('rci').value.trim();
   const s=document.getElementById('rs').value;
+  let sFinal=s; if(s==='outro'){ const outroIn=document.querySelector('#fgOutro input'); if(outroIn && outroIn.value.trim()!==''){ sFinal=outroIn.value.trim(); } }
   const d=document.getElementById('rd').value.trim();
   if(!n||!e||!p||!c||!s){toast('⚠ Preencha todos os campos obrigatórios');return;}
 
@@ -1023,7 +1024,7 @@ document.getElementById('breg').addEventListener('click',async()=>{
   btn.disabled=true;
 
   const profData={
-    name:n, email:e, phone:p, country:c, city:ci, specialty:s, description:d,
+    name:n, email:e, phone:p, country:c, city:ci, specialty:sFinal, description:d,
     plan:selPlanData.key, planPrice:selPlanData.price,
     profilePhoto:profilePhotoURL||null, workPhotos:workPhotoURLs
   };

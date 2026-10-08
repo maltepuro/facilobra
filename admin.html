@@ -232,6 +232,35 @@ async function deletePro(id){
     loadAll();
   }catch(e){alert('Erro ao remover: '+e.message);console.error(e);}
 }
+  async function editPro(id){
+  try{
+    const doc = await db.collection('professionals').doc(id).get();
+    if(!doc.exists){ alert('Cadastro não encontrado!'); return; }
+    const p = doc.data();
+    const newName = prompt('Nome:', p.name||'');
+    if(newName===null) return;
+    const newSpecialty = prompt('Especialidade:', p.specialty||'');
+    if(newSpecialty===null) return;
+    const newPhone = prompt('Telefone:', p.phone||'');
+    if(newPhone===null) return;
+    const newEmail = prompt('Email:', p.email||'');
+    if(newEmail===null) return;
+    const newCity = prompt('Cidade:', p.city||'');
+    if(newCity===null) return;
+    const newPrice = prompt('Preço do plano (€):', p.planPrice||'');
+    if(newPrice===null) return;
+    await db.collection('professionals').doc(id).update({
+      name: newName,
+      specialty: newSpecialty,
+      phone: newPhone,
+      email: newEmail,
+      city: newCity,
+      planPrice: newPrice
+    });
+    alert('✓ Cadastro atualizado!');
+    loadAll();
+  }catch(e){ alert('Erro ao editar: '+e.message); console.error(e); }
+  }
 </script>
 </body>
 </html>

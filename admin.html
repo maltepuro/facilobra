@@ -204,6 +204,7 @@ function renderList(){
       '<div class="pro-actions">'+
       (p.status==='pending_payment'?'<button class="btn btn-confirm" onclick="confirmPayment(\''+p.id+'\')"><i class="fas fa-check"></i> Confirmar Pagamento</button>':'')+
       (wpNum?'<button class="btn btn-wa" onclick="window.open(\'https://wa.me/'+wpNum+'\',\'_blank\')"><i class="fab fa-whatsapp"></i> WhatsApp</button>':'')+
+      '<button class="btn btn-edit" onclick="editPro(\''+p.id+'\')"><i class="fas fa-pen"></i> Editar</button>'+
       '<button class="btn btn-delete" onclick="deletePro(\''+p.id+'\')"><i class="fas fa-trash"></i> Remover</button>'+
       '</div></div>';
   }).join('');
